@@ -10,6 +10,9 @@ struct ContentView: View {
     @State private var selectValue = "swift"
     @State private var sliderValue = 0.5
     @State private var stepperValue = 3
+    @State private var selectedTab = 0
+    @State private var showSheet = false
+    @State private var showToast = false
     
     var body: some View {
         NavigationStack {
@@ -210,6 +213,109 @@ struct ContentView: View {
                         .padding(.horizontal)
                     }
                     
+                    // Alerts
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Alerts")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: S0.Theme.Spacing.md) {
+                            S0.Alert {
+                                S0.AlertTitle("Heads up!")
+                                S0.AlertDescription("This is an informational alert.")
+                            }
+                            
+                            S0.Alert(variant: .destructive) {
+                                S0.AlertTitle("Error")
+                                S0.AlertDescription("Something went wrong.")
+                            }
+                            
+                            S0.Alert(variant: .success) {
+                                S0.AlertTitle("Success")
+                                S0.AlertDescription("Operation completed.")
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // Tabs
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Tabs")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+                        
+                        VStack(alignment: .leading) {
+                            S0.TabList {
+                                S0.TabTrigger("Account", isSelected: selectedTab == 0) { selectedTab = 0 }
+                                S0.TabTrigger("Password", isSelected: selectedTab == 1) { selectedTab = 1 }
+                                S0.TabTrigger("Settings", isSelected: selectedTab == 2) { selectedTab = 2 }
+                            }
+                            
+                            S0.TabContent {
+                                Group {
+                                    switch selectedTab {
+                                    case 0: Text("Manage your account settings.")
+                                    case 1: Text("Change your password here.")
+                                    default: Text("Configure your preferences.")
+                                    }
+                                }
+                                .font(S0.Theme.Typography.body)
+                                .foregroundColor(S0.Theme.Colors.mutedForeground)
+                                .padding(.horizontal)
+                            }
+                        }
+                    }
+                    
+                    // Accordion
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Accordion")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: 0) {
+                            S0.Accordion("Is it accessible?") {
+                                Text("Yes. It adheres to WAI-ARIA design patterns.")
+                                    .font(S0.Theme.Typography.subheadline)
+                                    .foregroundColor(S0.Theme.Colors.mutedForeground)
+                            }
+                            S0.Accordion("Is it styled?") {
+                                Text("Yes. It uses S0 theme tokens throughout.")
+                                    .font(S0.Theme.Typography.subheadline)
+                                    .foregroundColor(S0.Theme.Colors.mutedForeground)
+                            }
+                            S0.Accordion("Is it animated?") {
+                                Text("Yes. Smooth expand/collapse with theme animations.")
+                                    .font(S0.Theme.Typography.subheadline)
+                                    .foregroundColor(S0.Theme.Colors.mutedForeground)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // Dropdown, Sheet, Toast
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Interactive")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+                        
+                        HStack(spacing: S0.Theme.Spacing.md) {
+                            S0.DropdownMenu("Actions", items: [
+                                .item("Edit", icon: "pencil") {},
+                                .item("Duplicate", icon: "doc.on.doc") {},
+                                .divider,
+                                .destructive("Delete", icon: "trash") {},
+                            ])
+                            .font(S0.Theme.Typography.button)
+                            
+                            S0.Button("Sheet", variant: .outline, size: .sm) { showSheet = true }
+                            
+                            S0.Button("Toast", variant: .outline, size: .sm) {
+                                withAnimation(S0.Theme.Animation.default) { showToast = true }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
                     // Sizes
                     VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
                         Text("Button Sizes")
@@ -230,6 +336,21 @@ struct ContentView: View {
                 .padding(.vertical)
             }
             .navigationTitle("S0 Components")
+            .s0Sheet(isPresented: $showSheet) {
+                VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                    Text("Sheet Content")
+                        .font(S0.Theme.Typography.title)
+                    Text("This is a bottom sheet with drag indicator and detents.")
+                        .font(S0.Theme.Typography.body)
+                        .foregroundColor(S0.Theme.Colors.mutedForeground)
+                    Spacer()
+                }
+            }
+            .overlay(alignment: .top) {
+                S0.Toast("Action completed!", variant: .success, isPresented: $showToast)
+                    .padding(.horizontal)
+                    .padding(.top, S0.Theme.Spacing.sm)
+            }
         }
     }
 }

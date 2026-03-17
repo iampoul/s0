@@ -69,6 +69,55 @@
       "dependencies": []
     },
     {
+      "name": "tabs",
+      "category": "layout",
+      "description": "Segmented tab navigation with trigger and content panels.",
+      "files": ["registry/ui/Tabs.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "alert",
+      "category": "layout",
+      "description": "An inline alert banner with icon and variant styling.",
+      "files": ["registry/ui/Alert.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "sheet",
+      "category": "layout",
+      "description": "A bottom sheet modal with drag indicator and detents.",
+      "files": ["registry/ui/Sheet.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "accordion",
+      "category": "layout",
+      "description": "Collapsible content sections with animated expand/collapse.",
+      "files": ["registry/ui/Accordion.swift"],
+      "dependencies": ["separator"]
+    },
+    {
+      "name": "dropdown-menu",
+      "category": "layout",
+      "description": "A contextual menu with items, icons, and destructive actions.",
+      "files": ["registry/ui/DropdownMenu.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "popover",
+      "category": "layout",
+      "description": "A floating content panel triggered by a button.",
+      "files": ["registry/ui/Popover.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "toast",
+      "category": "layout",
+      "description": "A non-blocking notification with auto-dismiss.",
+      "files": ["registry/ui/Toast.swift"],
+      "dependencies": []
+    },
+    {
       "name": "input",
       "category": "forms",
       "description": "A styled text input field with optional label support.",
