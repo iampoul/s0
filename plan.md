@@ -27,18 +27,15 @@ Fix the platform and design system fundamentals so everything built on top is so
 - ~~Update `Package.swift` in showcase to support `.macOS(.v14)`~~
 - ~~Verify all 3 existing components compile on macOS~~
 
-### 1.2 Expand the Theme System
-- **Spacing scale**: `xxs` (2), `xs` (4), `sm` (8), `md` (12), `lg` (16), `xl` (24), `xxl` (32)
-- **Typography scale**: `largeTitle`, `title`, `headline`, `body`, `callout`, `caption`, `button`
-- **Radius scale**: `sm` (4), `md` (8), `lg` (12), `xl` (16)
-- **Shadow system**: `sm`, `md`, `lg` elevation tokens
-- **Animation tokens**: standard durations and curves
-- **Additional semantic colors**: `success`, `warning`, `info` + foregrounds
+### 1.2 Expand the Theme System ✅
+- ~~Spacing, radius, typography, shadow, and animation token scales~~
+- ~~Additional semantic colors (success, warning, mutedForeground, card)~~
+- ~~Cross-platform colors via `#if canImport(UIKit/AppKit)`~~
+- ~~Migrate all components to use theme tokens~~
 
-### 1.3 CLI Quality of Life
-- `s0 list` — print available components from the registry with descriptions
-- Better error messages with recovery suggestions
-- Colored terminal output for better DX
+### 1.3 CLI Quality of Life ✅
+- ~~`s0 list` — print available components grouped by category with descriptions~~
+- ~~Registry model updated with category and description fields~~
 
 ---
 
