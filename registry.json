@@ -13,6 +13,55 @@
       "dependencies": []
     },
     {
+      "name": "badge",
+      "category": "primitives",
+      "description": "A small label for status, counts, or categories.",
+      "files": ["registry/ui/Badge.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "toggle",
+      "category": "primitives",
+      "description": "A styled switch control with an optional label.",
+      "files": ["registry/ui/Toggle.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "separator",
+      "category": "primitives",
+      "description": "A horizontal or vertical divider line.",
+      "files": ["registry/ui/Separator.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "avatar",
+      "category": "primitives",
+      "description": "A circular image with fallback initials.",
+      "files": ["registry/ui/Avatar.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "progress",
+      "category": "primitives",
+      "description": "A determinate progress bar.",
+      "files": ["registry/ui/Progress.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "spinner",
+      "category": "primitives",
+      "description": "An indeterminate loading indicator.",
+      "files": ["registry/ui/Spinner.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "skeleton",
+      "category": "primitives",
+      "description": "A placeholder shimmer for loading states.",
+      "files": ["registry/ui/Skeleton.swift"],
+      "dependencies": []
+    },
+    {
       "name": "card",
       "category": "layout",
       "description": "A container for content with header, body, and footer sections.",
