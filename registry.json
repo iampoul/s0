@@ -74,6 +74,55 @@
       "description": "A styled text input field with optional label support.",
       "files": ["registry/ui/Input.swift"],
       "dependencies": []
+    },
+    {
+      "name": "checkbox",
+      "category": "forms",
+      "description": "A toggleable checkmark with an optional label.",
+      "files": ["registry/ui/Checkbox.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "radio-group",
+      "category": "forms",
+      "description": "A single-select group of radio buttons.",
+      "files": ["registry/ui/RadioGroup.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "select",
+      "category": "forms",
+      "description": "A dropdown picker with optional label.",
+      "files": ["registry/ui/Select.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "slider",
+      "category": "forms",
+      "description": "A range input with track and thumb.",
+      "files": ["registry/ui/Slider.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "stepper",
+      "category": "forms",
+      "description": "An increment/decrement control with label.",
+      "files": ["registry/ui/Stepper.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "textarea",
+      "category": "forms",
+      "description": "A multi-line text input field.",
+      "files": ["registry/ui/TextArea.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "label",
+      "category": "forms",
+      "description": "A form field label with optional required indicator.",
+      "files": ["registry/ui/Label.swift"],
+      "dependencies": []
     }
   ]
 }

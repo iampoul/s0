@@ -2,8 +2,14 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var inputText = ""
+    @State private var textAreaText = ""
     @State private var toggleOn = true
     @State private var progress = 0.65
+    @State private var checkboxOn = false
+    @State private var radioSelection = "option1"
+    @State private var selectValue = "swift"
+    @State private var sliderValue = 0.5
+    @State private var stepperValue = 3
     
     var body: some View {
         NavigationStack {
@@ -158,6 +164,45 @@ struct ContentView: View {
                         VStack(spacing: S0.Theme.Spacing.md) {
                             S0.Input("Email", text: $inputText, placeholder: "you@example.com")
                             S0.Input(text: $inputText, placeholder: "Without label")
+                        }
+                        .padding(S0.Theme.Spacing.lg)
+                        .background(S0.Theme.Colors.secondaryBackground)
+                        .cornerRadius(S0.Theme.Radius.lg)
+                        .padding(.horizontal)
+                    }
+                    
+                    // Forms
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Form Controls")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+                        
+                        VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                            S0.Label("Terms", required: true)
+                            S0.Checkbox("I agree to the terms", isChecked: $checkboxOn)
+                            
+                            S0.Separator()
+                            
+                            S0.Label("Notification Preference")
+                            S0.RadioGroup(selection: $radioSelection, options: [
+                                (value: "option1", label: "Email"),
+                                (value: "option2", label: "Push"),
+                                (value: "option3", label: "None"),
+                            ])
+                            
+                            S0.Separator()
+                            
+                            S0.Select("Language", selection: $selectValue, options: [
+                                (value: "swift", label: "Swift"),
+                                (value: "kotlin", label: "Kotlin"),
+                                (value: "dart", label: "Dart"),
+                            ])
+                            
+                            S0.Slider("Volume", value: $sliderValue)
+                            
+                            S0.Stepper("Quantity", value: $stepperValue, in: 0...10)
+                            
+                            S0.TextArea("Notes", text: $textAreaText, placeholder: "Write something...")
                         }
                         .padding(S0.Theme.Spacing.lg)
                         .background(S0.Theme.Colors.secondaryBackground)
