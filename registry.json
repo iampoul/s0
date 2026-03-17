@@ -1,0 +1,30 @@
+{
+  "name": "S0 Registry",
+  "version": "0.1.0",
+  "styles": {
+    "theme": "registry/styles/S0Theme.swift"
+  },
+  "components": [
+    {
+      "name": "button",
+      "category": "primitives",
+      "description": "A customizable button component with multiple variants.",
+      "files": ["registry/ui/Button.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "card",
+      "category": "layout",
+      "description": "A container for content with header, body, and footer sections.",
+      "files": ["registry/ui/Card.swift"],
+      "dependencies": []
+    },
+    {
+      "name": "input",
+      "category": "forms",
+      "description": "A styled text input field with optional label support.",
+      "files": ["registry/ui/Input.swift"],
+      "dependencies": []
+    }
+  ]
+}
