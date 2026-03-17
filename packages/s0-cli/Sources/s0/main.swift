@@ -6,7 +6,7 @@ struct S0: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "s0",
         abstract: "The S0 CLI - A toolkit for SwiftUI components.",
-        subcommands: [Init.self, Add.self],
+        subcommands: [Init.self, Add.self, List.self],
         defaultSubcommand: Init.self
     )
 }
@@ -14,6 +14,8 @@ struct S0: ParsableCommand {
 struct Registry: Codable {
     struct Component: Codable {
         let name: String
+        let category: String?
+        let description: String?
         let files: [String]
         let dependencies: [String]
     }
@@ -247,6 +249,56 @@ extension View {
                 try content.write(toFile: destinationPath, atomically: true, encoding: .utf8)
                 print("✓ Added \(fileName) to S0/UI/")
             }
+        }
+    }
+
+    struct List: ParsableCommand {
+        static var configuration = CommandConfiguration(
+            abstract: "List all available components in the registry."
+        )
+
+        @Option(name: .shortAndLong, help: "The local path to the registry (for development).")
+        var registryPath: String = "."
+
+        func run() throws {
+            let registryFileUrl = URL(fileURLWithPath: registryPath).appendingPathComponent("registry.json")
+            guard let registryData = try? Data(contentsOf: registryFileUrl) else {
+                print("Error: Could not find registry.json at \(registryPath)")
+                print("  Run this from the S0 repo root, or pass --registry-path.")
+                throw ExitCode.failure
+            }
+
+            let decoder = JSONDecoder()
+            guard let registry = try? decoder.decode(Registry.self, from: registryData) else {
+                print("Error: Could not parse registry.json")
+                throw ExitCode.failure
+            }
+
+            if registry.components.isEmpty {
+                print("No components found in registry.")
+                return
+            }
+
+            // Group by category
+            var grouped: [String: [Registry.Component]] = [:]
+            for component in registry.components {
+                let category = component.category ?? "other"
+                grouped[category, default: []].append(component)
+            }
+
+            print("Available components (\(registry.components.count)):\n")
+
+            for category in grouped.keys.sorted() {
+                print("  \(category)")
+                for component in grouped[category]! {
+                    let desc = component.description.map { " — \($0)" } ?? ""
+                    let deps = component.dependencies.isEmpty ? "" : " [requires: \(component.dependencies.joined(separator: ", "))]"
+                    print("    \(component.name)\(desc)\(deps)")
+                }
+                print("")
+            }
+
+            print("Add a component with: s0 add <name>")
         }
     }
 }
