@@ -1,76 +1,69 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var inputText = ""
+    
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 32) {
+                VStack(spacing: S0.Theme.Spacing.xxl) {
                     
                     // Buttons Section
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
                         Text("Buttons")
-                            .font(.headline)
+                            .font(S0.Theme.Typography.headline)
                             .padding(.horizontal)
                         
-                        VStack(spacing: 12) {
-                            S0.Button("Primary Button") {
+                        VStack(spacing: S0.Theme.Spacing.md) {
+                            S0.Button("Primary Button", variant: .default) {
                                 print("Primary tapped")
                             }
-                            .variant(.default)
                             
-                            S0.Button("Secondary Button") {
+                            S0.Button("Secondary Button", variant: .secondary) {
                                 print("Secondary tapped")
                             }
-                            .variant(.secondary)
                             
-                            S0.Button("Destructive") {
+                            S0.Button("Destructive", variant: .destructive) {
                                 print("Destructive tapped")
                             }
-                            .variant(.destructive)
                             
-                            S0.Button("Outline Button") {
+                            S0.Button("Outline Button", variant: .outline) {
                                 print("Outline tapped")
                             }
-                            .variant(.outline)
                             
-                            S0.Button("Ghost Button") {
+                            S0.Button("Ghost Button", variant: .ghost) {
                                 print("Ghost tapped")
                             }
-                            .variant(.ghost)
                         }
-                        .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .cornerRadius(12)
+                        .padding(S0.Theme.Spacing.lg)
+                        .background(S0.Theme.Colors.secondaryBackground)
+                        .cornerRadius(S0.Theme.Radius.lg)
                         .padding(.horizontal)
                     }
                     
                     // Card Showcase
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
                         Text("Cards")
-                            .font(.headline)
+                            .font(S0.Theme.Typography.headline)
                             .padding(.horizontal)
                         
                         S0.Card {
-                            S0.Card.Header {
-                                S0.Card.Title("Project Status")
-                                S0.Card.Description("Track your current build progress.")
+                            S0.CardHeader {
+                                S0.CardTitle("Project Status")
+                                S0.CardDescription("Track your current build progress.")
                             }
                             
-                            S0.Card.Content {
+                            S0.CardContent {
                                 Text("Deployment in progress: 84%")
-                                    .font(.system(size: 14, weight: .medium, design: .monospaced))
-                                    .foregroundColor(.primary)
+                                    .font(S0.Theme.Typography.button)
+                                    .foregroundColor(S0.Theme.Colors.foreground)
                             }
                             
-                            S0.Card.Footer {
+                            S0.CardFooter {
                                 HStack {
                                     Spacer()
-                                    S0.Button("Cancel") {}
-                                        .variant(.ghost)
-                                        .size(.sm)
-                                    S0.Button("View Logs") {}
-                                        .variant(.outline)
-                                        .size(.sm)
+                                    S0.Button("Cancel", variant: .ghost, size: .sm) {}
+                                    S0.Button("View Logs", variant: .outline, size: .sm) {}
                                 }
                             }
                         }
@@ -78,24 +71,35 @@ struct ContentView: View {
                     }
                     
                     // Sizes
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
                         Text("Sizes")
-                            .font(.headline)
+                            .font(S0.Theme.Typography.headline)
                             .padding(.horizontal)
                         
-                        VStack(spacing: 12) {
-                            S0.Button("Small") {}
-                                .size(.sm)
-                            
+                        VStack(spacing: S0.Theme.Spacing.md) {
+                            S0.Button("Small", size: .sm) {}
                             S0.Button("Default") {}
-                                .size(.default)
-                            
-                            S0.Button("Large") {}
-                                .size(.lg)
+                            S0.Button("Large", size: .lg) {}
                         }
-                        .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .cornerRadius(12)
+                        .padding(S0.Theme.Spacing.lg)
+                        .background(S0.Theme.Colors.secondaryBackground)
+                        .cornerRadius(S0.Theme.Radius.lg)
+                        .padding(.horizontal)
+                    }
+                    
+                    // Input Showcase
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Inputs")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: S0.Theme.Spacing.md) {
+                            S0.Input("Email", text: $inputText, placeholder: "you@example.com")
+                            S0.Input(text: $inputText, placeholder: "Without label")
+                        }
+                        .padding(S0.Theme.Spacing.lg)
+                        .background(S0.Theme.Colors.secondaryBackground)
+                        .cornerRadius(S0.Theme.Radius.lg)
                         .padding(.horizontal)
                     }
                 }

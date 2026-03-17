@@ -7,12 +7,12 @@ S0 is a code-first SwiftUI component kit — like shadcn/ui for Apple platforms.
 **What exists today:**
 - 3 SwiftUI components (Button, Card, Input) in the registry
 - A Swift CLI with `init` and `add` commands (local registry only)
-- An iOS-only showcase app demoing those 3 components
+- A showcase app demoing those 3 components (iOS + macOS)
 - A Next.js landing page (single marketing page, no docs)
 - No tests anywhere
 
-**Critical issues to fix first:**
-- Components use `UIColor` (iOS-only) — blocks macOS support entirely
+**Critical issues remaining:**
+- ~~Components use `UIColor` (iOS-only) — blocks macOS support entirely~~ ✅ Fixed
 - Website lists 18 components that don't exist yet
 - Theme system is too minimal to scale (no spacing, shadows, typography scale)
 
@@ -22,10 +22,10 @@ S0 is a code-first SwiftUI component kit — like shadcn/ui for Apple platforms.
 
 Fix the platform and design system fundamentals so everything built on top is solid.
 
-### 1.1 macOS Compatibility
-- Replace all `UIColor` references with cross-platform color helpers (`#if os(iOS)` / `#if os(macOS)`)
-- Update `Package.swift` in showcase to support `.macOS(.v14)`
-- Verify all 3 existing components compile and render on macOS
+### 1.1 macOS Compatibility ✅
+- ~~Replace all `UIColor` references with cross-platform `Color(.system*)` initializers~~
+- ~~Update `Package.swift` in showcase to support `.macOS(.v14)`~~
+- ~~Verify all 3 existing components compile on macOS~~
 
 ### 1.2 Expand the Theme System
 - **Spacing scale**: `xxs` (2), `xs` (4), `sm` (8), `md` (12), `lg` (16), `xl` (24), `xxl` (32)

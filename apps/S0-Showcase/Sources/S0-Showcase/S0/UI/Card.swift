@@ -12,19 +12,17 @@ extension S0 {
             VStack(alignment: .leading, spacing: 0) {
                 content
             }
-            .background(S0.Theme.Colors.background)
-            .cornerRadius(S0.Theme.radius)
+            .background(S0.Theme.Colors.card)
+            .cornerRadius(S0.Theme.Radius.lg)
             .overlay(
-                RoundedRectangle(cornerRadius: S0.Theme.radius)
+                RoundedRectangle(cornerRadius: S0.Theme.Radius.lg)
                     .stroke(S0.Theme.Colors.border, lineWidth: 1)
             )
+            .s0Shadow(.sm)
         }
     }
-}
-
-// Subcomponents for Card
-extension S0.Card {
-    public struct Header<Content: View>: View {
+    
+    public struct CardHeader<Content: View>: View {
         private let content: Content
         
         public init(@ViewBuilder content: () -> Content) {
@@ -32,14 +30,14 @@ extension S0.Card {
         }
         
         public var body: some View {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: S0.Theme.Spacing.xs) {
                 content
             }
-            .padding()
+            .padding(S0.Theme.Spacing.lg)
         }
     }
     
-    public struct Content<Content: View>: View {
+    public struct CardContent<Content: View>: View {
         private let content: Content
         
         public init(@ViewBuilder content: () -> Content) {
@@ -50,12 +48,12 @@ extension S0.Card {
             VStack(alignment: .leading, spacing: 0) {
                 content
             }
-            .padding(.horizontal)
-            .padding(.bottom)
+            .padding(.horizontal, S0.Theme.Spacing.lg)
+            .padding(.bottom, S0.Theme.Spacing.lg)
         }
     }
     
-    public struct Footer<Content: View>: View {
+    public struct CardFooter<Content: View>: View {
         private let content: Content
         
         public init(@ViewBuilder content: () -> Content) {
@@ -67,12 +65,12 @@ extension S0.Card {
                 Divider()
                     .background(S0.Theme.Colors.border)
                 content
-                    .padding()
+                    .padding(S0.Theme.Spacing.lg)
             }
         }
     }
     
-    public struct Title: View {
+    public struct CardTitle: View {
         private let text: String
         
         public init(_ text: String) {
@@ -81,12 +79,12 @@ extension S0.Card {
         
         public var body: some View {
             Text(text)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(S0.Theme.Typography.headline)
+                .foregroundColor(S0.Theme.Colors.cardForeground)
         }
     }
     
-    public struct Description: View {
+    public struct CardDescription: View {
         private let text: String
         
         public init(_ text: String) {
@@ -95,8 +93,8 @@ extension S0.Card {
         
         public var body: some View {
             Text(text)
-                .font(.system(size: 14))
-                .foregroundColor(.secondary)
+                .font(S0.Theme.Typography.subheadline)
+                .foregroundColor(S0.Theme.Colors.mutedForeground)
         }
     }
 }

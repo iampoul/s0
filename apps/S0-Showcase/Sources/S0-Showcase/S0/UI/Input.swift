@@ -13,16 +13,16 @@ extension S0 {
         }
         
         public var body: some View {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: S0.Theme.Spacing.xs + S0.Theme.Spacing.xxs) {
                 if let label = label {
                     Text(label)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .font(S0.Theme.Typography.button)
+                        .foregroundColor(S0.Theme.Colors.mutedForeground)
                 }
                 
                 TextField(placeholder, text: $text)
-                    .font(.system(size: 14))
-                    .padding(.horizontal, 12)
+                    .font(S0.Theme.Typography.button)
+                    .padding(.horizontal, S0.Theme.Spacing.md)
                     .padding(.vertical, 10)
                     .background(S0.Theme.Colors.background)
                     .cornerRadius(S0.Theme.radius)
