@@ -21,10 +21,10 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     }`
 
   return (
-    <nav className="py-6 pr-2">
+    <nav className="py-8 pr-2">
       {/* Getting Started */}
-      <div className="mb-6">
-        <h4 className="font-mono text-[11px] uppercase tracking-widest text-foreground/70 mb-3 px-2">
+      <div className="mb-8">
+        <h4 className="text-xs font-semibold uppercase tracking-widest text-foreground mb-3 px-2">
           Getting Started
         </h4>
         <ul className="space-y-0.5">
@@ -39,13 +39,13 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
       </div>
 
       {/* Components header */}
-      <div className="mb-3 px-2">
+      <div className="mb-4 px-2">
         <Link
           href="/docs/components"
-          className={`font-mono text-[11px] uppercase tracking-widest transition-colors duration-150 ${
+          className={`text-xs font-semibold uppercase tracking-widest transition-colors duration-150 ${
             pathname === "/docs/components"
               ? "text-primary"
-              : "text-foreground/70 hover:text-primary"
+              : "text-foreground hover:text-primary"
           }`}
           onClick={onLinkClick}
         >
@@ -56,8 +56,8 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
       {/* Component categories */}
       {(Object.keys(sidebarNav.components) as Array<keyof typeof sidebarNav.components>).map(
         (cat) => (
-          <div key={cat} className="mb-5">
-            <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wider mb-1.5 px-2">
+          <div key={cat} className="mb-7">
+            <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wider mb-2 px-2">
               {categories[cat]}
             </p>
             <ul className="space-y-0.5">
@@ -98,7 +98,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
 
       <div className="mx-auto max-w-6xl flex">
         {/* Desktop sidebar */}
-        <aside className="hidden lg:block w-64 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] border-r border-border pl-6">
+        <aside className="hidden lg:block w-64 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] border-r border-border pl-6 pt-14">
           <ScrollArea className="h-full">
             <SidebarContent />
           </ScrollArea>
@@ -118,7 +118,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
         )}
 
         {/* Main content */}
-        <main className="flex-1 min-w-0 px-6 lg:px-12 py-10 pt-24 lg:pt-10">
+        <main className="flex-1 min-w-0 px-6 lg:px-12 py-10 pt-24 lg:pt-24">
           {children}
         </main>
       </div>
