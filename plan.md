@@ -99,7 +99,49 @@ Full docs site built with sidebar navigation, 31 static pages.
 
 ---
 
-## Component Naming Convention
+## Phase 6 — Distribution & Polish
+
+### 6.1 Remote Registry
+- CLI fetches components from GitHub raw URL (`raw.githubusercontent.com/iampoul/s0/main/registry/`)
+- `s0 add button` works without `--registry-path` by downloading from remote
+- Local registry override via `s0.json` or `--registry-path` flag
+- Cache downloaded components locally for offline use
+- Version checking: compare local vs remote `registry.json`
+
+### 6.2 Homebrew Distribution
+- Create a Homebrew formula (`homebrew-s0` tap)
+- `brew install iampoul/s0/s0` installs the CLI
+- Automate release builds via GitHub Actions (universal macOS binary)
+- Add `s0 --version` command tied to release tags
+
+### 6.3 More Components
+- Table — data table with sortable columns and rows
+- SearchBar — styled search input with clear button and suggestions
+- Dialog / AlertDialog — modal confirmation with actions
+- DatePicker — styled date/time picker
+- NavigationBar — custom navigation header
+- SegmentedControl — horizontal segment picker
+- Tooltip — floating hint on hover/long-press
+- ScrollArea — styled scrollable container
+
+### 6.4 Theming Presets
+- Bundled theme packs: Default, Zinc, Slate, Rose, Blue, Green
+- `s0 init --theme zinc` to scaffold with a preset
+- Theme switcher in showcase app to preview all presets
+- Document theming customization in docs site
+
+### 6.5 Component Screenshots
+- Auto-generate preview images from SwiftUI previews
+- Add screenshots to docs site component pages
+- Light + dark mode variants for each component
+- Script to regenerate all screenshots in CI
+
+### 6.6 Accessibility Audit
+- VoiceOver labels and hints on all 24 components
+- Dynamic Type support verified across all components
+- Keyboard navigation (macOS) for interactive components
+- Reduce Motion support for animated components
+- Add accessibility section to each component doc page
 
 All components live under the `S0` namespace:
 
