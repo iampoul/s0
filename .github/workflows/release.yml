@@ -21,7 +21,8 @@ jobs:
       - name: Verify CLI version matches tag
         working-directory: packages/s0-cli
         run: |
-          CLI_VERSION=$(swift build -c release --quiet 2>/dev/null && .build/release/s0 --version || echo "unknown")
+          swift build -c release 2>&1
+          CLI_VERSION=$(.build/release/s0 --version 2>&1)
           TAG_VERSION="${{ steps.version.outputs.VERSION }}"
           if [ "$CLI_VERSION" != "$TAG_VERSION" ]; then
             echo "::error::CLI version ($CLI_VERSION) does not match tag version ($TAG_VERSION)"

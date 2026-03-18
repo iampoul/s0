@@ -120,6 +120,18 @@ Every component should:
 5. Build both `s0-cli` and `S0-Showcase` to verify
 6. Update `apps/web` component listings if applicable
 
+## Commit Convention
+
+Use **Conventional Commits** — Release Please auto-generates changelogs and version bumps from these:
+
+- `feat: add DatePicker component` → bumps **minor** (0.1.0 → 0.2.0)
+- `fix: resolve color issue on macOS` → bumps **patch** (0.1.0 → 0.1.1)
+- `chore: update dependencies` → no version bump
+- `docs: add DatePicker documentation` → no version bump
+- `feat!: redesign theme API` → bumps **major** (breaking change)
+
+Always use lowercase, no period at end. Body/footer optional.
+
 ## CLI
 
 The CLI (`packages/s0-cli`) uses Swift Argument Parser. Commands:
