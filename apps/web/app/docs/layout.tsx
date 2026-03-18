@@ -11,21 +11,23 @@ import { Navbar } from "@/components/landing/navbar"
 function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   const pathname = usePathname()
 
+  const isActive = (href: string) => pathname === href
+
   const linkClass = (href: string) =>
-    `block text-sm py-1 transition-colors duration-150 ${
-      pathname === href
-        ? "text-primary font-medium"
-        : "text-muted-foreground hover:text-foreground"
+    `block text-[13px] py-1.5 px-2 rounded-md transition-colors duration-150 ${
+      isActive(href)
+        ? "bg-primary/10 text-primary font-medium"
+        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
     }`
 
   return (
-    <nav className="space-y-6 py-6 pr-4">
+    <nav className="py-6 pr-2">
       {/* Getting Started */}
-      <div>
-        <h4 className="font-mono text-xs uppercase tracking-widest text-foreground mb-2">
+      <div className="mb-6">
+        <h4 className="font-mono text-[11px] uppercase tracking-widest text-foreground/70 mb-3 px-2">
           Getting Started
         </h4>
-        <ul className="space-y-1">
+        <ul className="space-y-0.5">
           {sidebarNav.gettingStarted.map((item) => (
             <li key={item.href}>
               <Link href={item.href} className={linkClass(item.href)} onClick={onLinkClick}>
@@ -36,32 +38,40 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         </ul>
       </div>
 
-      {/* Components */}
-      <div>
-        <h4 className="font-mono text-xs uppercase tracking-widest text-foreground mb-2">
-          <Link href="/docs/components" className="hover:text-primary transition-colors" onClick={onLinkClick}>
-            Components
-          </Link>
-        </h4>
-        {(Object.keys(sidebarNav.components) as Array<keyof typeof sidebarNav.components>).map(
-          (cat) => (
-            <div key={cat} className="mb-4">
-              <p className="text-xs font-medium text-muted-foreground mb-1 pl-1">
-                {categories[cat]}
-              </p>
-              <ul className="space-y-0.5">
-                {sidebarNav.components[cat].map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} className={linkClass(item.href)} onClick={onLinkClick}>
-                      {item.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        )}
+      {/* Components header */}
+      <div className="mb-3 px-2">
+        <Link
+          href="/docs/components"
+          className={`font-mono text-[11px] uppercase tracking-widest transition-colors duration-150 ${
+            pathname === "/docs/components"
+              ? "text-primary"
+              : "text-foreground/70 hover:text-primary"
+          }`}
+          onClick={onLinkClick}
+        >
+          Components
+        </Link>
       </div>
+
+      {/* Component categories */}
+      {(Object.keys(sidebarNav.components) as Array<keyof typeof sidebarNav.components>).map(
+        (cat) => (
+          <div key={cat} className="mb-5">
+            <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wider mb-1.5 px-2">
+              {categories[cat]}
+            </p>
+            <ul className="space-y-0.5">
+              {sidebarNav.components[cat].map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className={linkClass(item.href)} onClick={onLinkClick}>
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      )}
     </nav>
   )
 }
@@ -88,7 +98,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
 
       <div className="mx-auto max-w-6xl flex">
         {/* Desktop sidebar */}
-        <aside className="hidden lg:block w-56 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] border-r border-border pl-6">
+        <aside className="hidden lg:block w-64 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] border-r border-border pl-6">
           <ScrollArea className="h-full">
             <SidebarContent />
           </ScrollArea>
@@ -101,7 +111,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
               className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm lg:hidden"
               onClick={() => setSidebarOpen(false)}
             />
-            <aside className="fixed top-[6.5rem] left-0 z-40 w-64 h-[calc(100vh-6.5rem)] border-r border-border bg-background px-6 lg:hidden overflow-y-auto">
+            <aside className="fixed top-[6.5rem] left-0 z-40 w-72 h-[calc(100vh-6.5rem)] border-r border-border bg-background px-6 lg:hidden overflow-y-auto">
               <SidebarContent onLinkClick={() => setSidebarOpen(false)} />
             </aside>
           </>
