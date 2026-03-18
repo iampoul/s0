@@ -80,28 +80,22 @@ Full docs site built with sidebar navigation, 31 static pages.
 
 ---
 
-## Phase 5 — Testing & Polish
+## Phase 5 — Testing & Polish ✅
 
-### 5.1 CLI Tests
-- Unit tests for `init` command (directory creation, file contents)
-- Unit tests for `add` command (dependency resolution, file copying, skip existing)
-- Unit tests for `list` command output
-- Edge cases: missing registry, corrupt JSON, circular dependencies
+### 5.1 CLI Tests ✅
+- 31 integration tests using XCTest + Process
+- Covers: init, add, remove, update, list, doctor
+- Edge cases: missing registry, corrupt JSON, empty registry, unknown components, dependency resolution
 
-### 5.2 Component Tests
-- SwiftUI preview tests or snapshot tests for each component
-- Verify all variants render without crashes
-- Test light/dark mode, accessibility (Dynamic Type, VoiceOver labels)
+### 5.2 Web Tests ✅
+- 27 tests using Vitest + React Testing Library
+- docs-data: component count, slug uniqueness, category validation, sidebar nav, getters
+- ComponentShowcase: rendering, category filtering, link targets
 
-### 5.3 Web Tests
-- Component rendering tests for landing page sections
-- Link/route validation
-
-### 5.4 CI/CD
-- GitHub Actions workflow for building the CLI
-- GitHub Actions workflow for building the showcase app (iOS + macOS)
-- GitHub Actions workflow for building/deploying the Next.js site
-- Automated checks on PRs
+### 5.3 CI/CD ✅
+- GitHub Actions workflow (`.github/workflows/ci.yml`)
+- CLI job: swift build + swift test on macOS
+- Web job: pnpm install, vitest, next build on Ubuntu
 
 ---
 

@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cli-build-and-test:
+    name: CLI — Build & Test
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build CLI
+        working-directory: packages/s0-cli
+        run: swift build
+
+      - name: Run CLI tests
+        working-directory: packages/s0-cli
+        run: swift test
+
+  web-build-and-test:
+    name: Web — Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run web tests
+        working-directory: apps/web
+        run: pnpm test
+
+      - name: Build website
+        working-directory: apps/web
+        run: pnpm build
