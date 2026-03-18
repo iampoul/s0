@@ -403,4 +403,62 @@ final class CLIIntegrationTests: XCTestCase {
         XCTAssertEqual(result.exitCode, 0)
         XCTAssertTrue(result.stdout.contains("No components found"))
     }
+    
+    // MARK: - Remote Registry Tests
+    
+    func testDefaultUsesRemoteRegistry() throws {
+        // Without -r flag, should fetch from GitHub
+        let result = try run(["list"])
+        
+        XCTAssertEqual(result.exitCode, 0)
+        XCTAssertTrue(result.stdout.contains("Available components"))
+        XCTAssertTrue(result.stdout.contains("button"))
+    }
+    
+    func testRemoteAddComponent() throws {
+        try run(["init"])
+        let result = try run(["add", "badge"])
+        
+        XCTAssertEqual(result.exitCode, 0)
+        XCTAssertTrue(result.stdout.contains("Added Badge.swift"))
+        XCTAssertTrue(fileExists("S0/UI/Badge.swift"))
+        
+        // Verify file has real content
+        let content = try readFile("S0/UI/Badge.swift")
+        XCTAssertTrue(content.contains("extension S0"))
+    }
+    
+    func testRemoteAddWithDependency() throws {
+        try run(["init"])
+        let result = try run(["add", "accordion"])
+        
+        XCTAssertEqual(result.exitCode, 0)
+        XCTAssertTrue(fileExists("S0/UI/Accordion.swift"))
+        XCTAssertTrue(fileExists("S0/UI/Separator.swift"), "Should auto-install dependency from remote")
+    }
+    
+    func testDoctorShowsRemoteSource() throws {
+        let result = try run(["doctor"])
+        
+        XCTAssertTrue(result.stdout.contains("Registry: remote"))
+        XCTAssertTrue(result.stdout.contains("raw.githubusercontent.com"))
+    }
+    
+    func testDoctorShowsLocalSourceWithFlag() throws {
+        let result = try run(["doctor", "-r", registryDir.path])
+        
+        XCTAssertTrue(result.stdout.contains("Registry: local"))
+    }
+    
+    func testConfigOverridesRemote() throws {
+        // Create s0.json pointing to local registry
+        let config = """
+        {"registryPath": "\(registryDir.path)"}
+        """
+        try config.write(to: tmpDir.appendingPathComponent("s0.json"), atomically: true, encoding: .utf8)
+        
+        let result = try run(["doctor"])
+        
+        XCTAssertTrue(result.stdout.contains("Registry: local"), "s0.json registryPath should override remote default")
+    }
 }

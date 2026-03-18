@@ -1,11 +1,21 @@
 import Foundation
 import ArgumentParser
 
+// MARK: - Constants
+
+let defaultRemoteBaseURL = "https://raw.githubusercontent.com/iampoul/s0/main"
+let cacheDir: String = {
+    let home = FileManager.default.homeDirectoryForCurrentUser.path
+    return home + "/.s0/cache"
+}()
+let cacheTTL: TimeInterval = 3600 // 1 hour
+
 // MARK: - Config
 
 struct S0Config: Codable {
     let registryPath: String?
     let outputPath: String?
+    let remote: String?
     
     static func load() -> S0Config? {
         let configPath = FileManager.default.currentDirectoryPath + "/s0.json"
@@ -14,6 +24,32 @@ struct S0Config: Codable {
             return nil
         }
         return config
+    }
+}
+
+// MARK: - Registry Source
+
+enum RegistrySource {
+    case local(String)
+    case remote(String)
+    
+    /// Determine source: explicit --registry-path uses local, otherwise remote.
+    static func resolve(registryPath: String?) -> RegistrySource {
+        if let path = registryPath {
+            // Explicit local path provided
+            let resolved = (path == ".") ? (S0Config.load()?.registryPath ?? path) : path
+            return .local(resolved)
+        }
+        // No --registry-path: use remote (or config override)
+        if let config = S0Config.load() {
+            if let localPath = config.registryPath {
+                return .local(localPath)
+            }
+            if let remote = config.remote {
+                return .remote(remote)
+            }
+        }
+        return .remote(defaultRemoteBaseURL)
     }
 }
 
@@ -31,12 +67,20 @@ struct Registry: Codable {
     let version: String?
     let components: [Component]
     
-    static func load(from registryPath: String) throws -> Registry {
-        let url = URL(fileURLWithPath: registryPath).appendingPathComponent("registry.json")
-        guard let data = try? Data(contentsOf: url) else {
-            print("Error: Could not find registry.json at \(registryPath)")
-            print("  Run this from the S0 repo root, or pass --registry-path.")
-            throw ExitCode.failure
+    static func load(from source: RegistrySource) throws -> Registry {
+        let data: Data
+        switch source {
+        case .local(let path):
+            let url = URL(fileURLWithPath: path).appendingPathComponent("registry.json")
+            guard let d = try? Data(contentsOf: url) else {
+                print("Error: Could not find registry.json at \(path)")
+                print("  Run this from the S0 repo root, or pass --registry-path.")
+                throw ExitCode.failure
+            }
+            data = d
+        case .remote(let baseURL):
+            let urlString = baseURL + "/registry.json"
+            data = try fetchRemote(urlString: urlString, cacheKey: "registry.json")
         }
         guard let registry = try? JSONDecoder().decode(Registry.self, from: data) else {
             print("Error: Could not parse registry.json")
@@ -46,12 +90,90 @@ struct Registry: Codable {
     }
 }
 
-// MARK: - Helpers
+// MARK: - Remote Fetch & Cache
 
-func resolveRegistryPath(option: String) -> String {
-    if option != "." { return option }
-    return S0Config.load()?.registryPath ?? option
+func fetchRemote(urlString: String, cacheKey: String) throws -> Data {
+    let fm = FileManager.default
+    let cachedPath = cacheDir + "/" + cacheKey.replacingOccurrences(of: "/", with: "_")
+    
+    // Check cache
+    if fm.fileExists(atPath: cachedPath),
+       let attrs = try? fm.attributesOfItem(atPath: cachedPath),
+       let modified = attrs[.modificationDate] as? Date,
+       Date().timeIntervalSince(modified) < cacheTTL {
+        if let data = try? Data(contentsOf: URL(fileURLWithPath: cachedPath)) {
+            return data
+        }
+    }
+    
+    // Fetch from network
+    guard let url = URL(string: urlString) else {
+        print("Error: Invalid URL: \(urlString)")
+        throw ExitCode.failure
+    }
+    
+    let semaphore = DispatchSemaphore(value: 0)
+    var result: Data?
+    var fetchError: Error?
+    
+    let task = URLSession.shared.dataTask(with: url) { data, response, error in
+        if let error = error {
+            fetchError = error
+        } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            fetchError = NSError(domain: "S0", code: httpResponse.statusCode,
+                                userInfo: [NSLocalizedDescriptionKey: "HTTP \(httpResponse.statusCode)"])
+        } else {
+            result = data
+        }
+        semaphore.signal()
+    }
+    task.resume()
+    semaphore.wait()
+    
+    if let error = fetchError {
+        // Fall back to stale cache if available
+        if fm.fileExists(atPath: cachedPath),
+           let data = try? Data(contentsOf: URL(fileURLWithPath: cachedPath)) {
+            print("⚠ Network error, using cached version: \(error.localizedDescription)")
+            return data
+        }
+        print("Error: Could not fetch \(urlString): \(error.localizedDescription)")
+        throw ExitCode.failure
+    }
+    
+    guard let data = result else {
+        print("Error: No data received from \(urlString)")
+        throw ExitCode.failure
+    }
+    
+    // Write to cache
+    try? fm.createDirectory(atPath: cacheDir, withIntermediateDirectories: true)
+    try? data.write(to: URL(fileURLWithPath: cachedPath))
+    
+    return data
 }
+
+func fetchComponentFile(filePath: String, source: RegistrySource) throws -> String {
+    switch source {
+    case .local(let basePath):
+        let sourceUrl = URL(fileURLWithPath: basePath).appendingPathComponent(filePath)
+        guard let content = try? String(contentsOf: sourceUrl, encoding: .utf8) else {
+            print("Error: Could not read source file at \(sourceUrl.path)")
+            throw ExitCode.failure
+        }
+        return content
+    case .remote(let baseURL):
+        let urlString = baseURL + "/" + filePath
+        let data = try fetchRemote(urlString: urlString, cacheKey: filePath)
+        guard let content = String(data: data, encoding: .utf8) else {
+            print("Error: Could not decode file content from \(urlString)")
+            throw ExitCode.failure
+        }
+        return content
+    }
+}
+
+// MARK: - Helpers
 
 func resolveOutputPath() -> String {
     let base = FileManager.default.currentDirectoryPath
@@ -119,20 +241,20 @@ extension S0CLI {
         @Argument(help: "The name of the component to add.")
         var componentName: String
 
-        @Option(name: .shortAndLong, help: "The local path to the registry.")
-        var registryPath: String = "."
+        @Option(name: .shortAndLong, help: "Local path to the registry (omit to fetch from GitHub).")
+        var registryPath: String?
 
         func run() throws {
-            let resolved = resolveRegistryPath(option: registryPath)
-            let registry = try Registry.load(from: resolved)
+            let source = RegistrySource.resolve(registryPath: registryPath)
+            let registry = try Registry.load(from: source)
             let fileManager = FileManager.default
             
-            try addComponent(name: componentName, registry: registry, registryPath: resolved, fileManager: fileManager)
+            try addComponent(name: componentName, registry: registry, source: source, fileManager: fileManager)
             
             print("✓ Component '\(componentName)' added successfully.")
         }
         
-        private func addComponent(name: String, registry: Registry, registryPath: String, fileManager: FileManager) throws {
+        private func addComponent(name: String, registry: Registry, source: RegistrySource, fileManager: FileManager) throws {
             guard let component = registry.components.first(where: { $0.name.lowercased() == name.lowercased() }) else {
                 print("Error: Component '\(name)' not found in registry.")
                 print("  Run 's0 list' to see available components.")
@@ -140,7 +262,7 @@ extension S0CLI {
             }
             
             for dependency in component.dependencies {
-                try addComponent(name: dependency, registry: registry, registryPath: registryPath, fileManager: fileManager)
+                try addComponent(name: dependency, registry: registry, source: source, fileManager: fileManager)
             }
             
             let s0Path = resolveOutputPath()
@@ -150,8 +272,7 @@ extension S0CLI {
             }
             
             for filePath in component.files {
-                let sourceUrl = URL(fileURLWithPath: registryPath).appendingPathComponent(filePath)
-                let fileName = sourceUrl.lastPathComponent
+                let fileName = URL(fileURLWithPath: filePath).lastPathComponent
                 let destinationPath = uiPath + "/" + fileName
                 
                 if fileManager.fileExists(atPath: destinationPath) {
@@ -159,11 +280,7 @@ extension S0CLI {
                     continue
                 }
                 
-                guard let content = try? String(contentsOf: sourceUrl, encoding: .utf8) else {
-                    print("Error: Could not read source file at \(sourceUrl.path)")
-                    continue
-                }
-                
+                let content = try fetchComponentFile(filePath: filePath, source: source)
                 try content.write(toFile: destinationPath, atomically: true, encoding: .utf8)
                 print("✓ Added \(fileName)")
             }
@@ -182,15 +299,15 @@ extension S0CLI {
         @Argument(help: "The name of the component to remove.")
         var componentName: String
 
-        @Option(name: .shortAndLong, help: "The local path to the registry.")
-        var registryPath: String = "."
+        @Option(name: .shortAndLong, help: "Local path to the registry (omit to fetch from GitHub).")
+        var registryPath: String?
 
         @Flag(help: "Skip confirmation prompt.")
         var force: Bool = false
 
         func run() throws {
-            let resolved = resolveRegistryPath(option: registryPath)
-            let registry = try Registry.load(from: resolved)
+            let source = RegistrySource.resolve(registryPath: registryPath)
+            let registry = try Registry.load(from: source)
             let fileManager = FileManager.default
 
             guard let component = registry.components.first(where: { $0.name.lowercased() == componentName.lowercased() }) else {
@@ -246,12 +363,12 @@ extension S0CLI {
         @Argument(help: "The name of the component to update.")
         var componentName: String
 
-        @Option(name: .shortAndLong, help: "The local path to the registry.")
-        var registryPath: String = "."
+        @Option(name: .shortAndLong, help: "Local path to the registry (omit to fetch from GitHub).")
+        var registryPath: String?
 
         func run() throws {
-            let resolved = resolveRegistryPath(option: registryPath)
-            let registry = try Registry.load(from: resolved)
+            let source = RegistrySource.resolve(registryPath: registryPath)
+            let registry = try Registry.load(from: source)
             let fileManager = FileManager.default
 
             guard let component = registry.components.first(where: { $0.name.lowercased() == componentName.lowercased() }) else {
@@ -263,14 +380,10 @@ extension S0CLI {
             let uiPath = s0Path + "/UI"
 
             for filePath in component.files {
-                let sourceUrl = URL(fileURLWithPath: resolved).appendingPathComponent(filePath)
-                let fileName = sourceUrl.lastPathComponent
+                let fileName = URL(fileURLWithPath: filePath).lastPathComponent
                 let destinationPath = uiPath + "/" + fileName
 
-                guard let newContent = try? String(contentsOf: sourceUrl, encoding: .utf8) else {
-                    print("Error: Could not read source file at \(sourceUrl.path)")
-                    continue
-                }
+                let newContent = try fetchComponentFile(filePath: filePath, source: source)
                 
                 if fileManager.fileExists(atPath: destinationPath) {
                     let existingContent = try? String(contentsOfFile: destinationPath, encoding: .utf8)
@@ -302,12 +415,12 @@ extension S0CLI {
             abstract: "List all available components in the registry."
         )
 
-        @Option(name: .shortAndLong, help: "The local path to the registry.")
-        var registryPath: String = "."
+        @Option(name: .shortAndLong, help: "Local path to the registry (omit to fetch from GitHub).")
+        var registryPath: String?
 
         func run() throws {
-            let resolved = resolveRegistryPath(option: registryPath)
-            let registry = try Registry.load(from: resolved)
+            let source = RegistrySource.resolve(registryPath: registryPath)
+            let registry = try Registry.load(from: source)
 
             if registry.components.isEmpty {
                 print("No components found in registry.")
@@ -346,8 +459,8 @@ extension S0CLI {
             abstract: "Validate your S0 project structure."
         )
 
-        @Option(name: .shortAndLong, help: "The local path to the registry.")
-        var registryPath: String = "."
+        @Option(name: .shortAndLong, help: "Local path to the registry (omit to fetch from GitHub).")
+        var registryPath: String?
 
         func run() throws {
             let fileManager = FileManager.default
@@ -364,6 +477,7 @@ extension S0CLI {
                 if let config = S0Config.load() {
                     if let rp = config.registryPath { print("  registryPath: \(rp)") }
                     if let op = config.outputPath { print("  outputPath: \(op)") }
+                    if let rm = config.remote { print("  remote: \(rm)") }
                 } else {
                     print("⚠ s0.json exists but could not be parsed")
                     issues += 1
@@ -396,8 +510,8 @@ extension S0CLI {
                 print("✓ \(files.count) component(s) installed in S0/UI/")
                 
                 // Verify against registry
-                let resolved = resolveRegistryPath(option: registryPath)
-                if let registry = try? Registry.load(from: resolved) {
+                let source = RegistrySource.resolve(registryPath: registryPath)
+                if let registry = try? Registry.load(from: source) {
                     for file in files {
                         let matchesRegistry = registry.components.contains { component in
                             component.files.contains { URL(fileURLWithPath: $0).lastPathComponent == file }
@@ -409,6 +523,15 @@ extension S0CLI {
                 }
             } else {
                 print("· S0/UI/ not found (no components installed yet)")
+            }
+
+            // Registry source
+            let source = RegistrySource.resolve(registryPath: registryPath)
+            switch source {
+            case .local(let path):
+                print("· Registry: local (\(path))")
+            case .remote(let url):
+                print("· Registry: remote (\(url))")
             }
 
             // Summary
