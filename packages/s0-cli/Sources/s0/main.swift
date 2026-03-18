@@ -3,6 +3,7 @@ import ArgumentParser
 
 // MARK: - Constants
 
+let s0Version = "0.1.0"
 let defaultRemoteBaseURL = "https://raw.githubusercontent.com/iampoul/s0/main"
 let cacheDir: String = {
     let home = FileManager.default.homeDirectoryForCurrentUser.path
@@ -190,6 +191,7 @@ struct S0CLI: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "s0",
         abstract: "The S0 CLI — A toolkit for SwiftUI components.",
+        version: s0Version,
         subcommands: [Init.self, Add.self, Remove.self, Update.self, List.self, Doctor.self],
         defaultSubcommand: Init.self
     )

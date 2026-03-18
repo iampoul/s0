@@ -69,6 +69,14 @@ final class CLIIntegrationTests: XCTestCase {
         try String(contentsOf: tmpDir.appendingPathComponent(path), encoding: .utf8)
     }
     
+    // MARK: - Version Test
+
+    func testVersionFlag() throws {
+        let result = try run(["--version"])
+        XCTAssertEqual(result.exitCode, 0)
+        XCTAssertTrue(result.stdout.contains("0.1.0"), "Should print version number")
+    }
+
     // MARK: - Init Tests
     
     func testInitCreatesDirectoryStructure() throws {
