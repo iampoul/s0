@@ -138,9 +138,56 @@ The CLI (`packages/s0-cli`) uses Swift Argument Parser. Commands:
 
 - `s0 init` — scaffolds `S0/Styles/S0Theme.swift` in the current directory
 - `s0 add <name>` — copies a component from the registry into `S0/UI/`
+- `s0 remove <name>` — removes a component from the project
+- `s0 update <name>` — re-copies a component from the registry
 - `s0 list` — prints available components grouped by category
+- `s0 doctor` — validates project structure
+- `s0 --version` — prints current version
 
 The `init` command contains an inline copy of `S0Theme.swift` as a string literal. Keep it in sync with `registry/styles/S0Theme.swift`.
+
+### Version Management
+
+The CLI version is defined in `packages/s0-cli/Sources/s0/main.swift`:
+
+```swift
+let s0Version = "0.1.0" // x-release-please-version
+```
+
+**Do not manually edit this line.** Release Please updates it automatically via the `x-release-please-version` annotation.
+
+## Release Flow
+
+The release process is fully automated:
+
+1. **Commit** to `main` using conventional commits (`feat:`, `fix:`, etc.)
+2. **Release Please** (`release-please.yml`) runs on every push to `main` and creates/updates a release PR with:
+   - Version bump in `main.swift` and `package.json`
+   - Auto-generated `CHANGELOG.md`
+3. **Merge** the release PR → Release Please tags the commit (e.g., `v0.2.0`)
+4. **Release workflow** (`release.yml`) triggers on the tag and:
+   - Builds a universal macOS binary (arm64 + x86_64)
+   - Creates a GitHub Release with the binary attached
+   - Updates the Homebrew formula in `iampoul/homebrew-s0` (requires `HOMEBREW_TAP_TOKEN` secret)
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `release-please-config.json` | Release Please config (extra-files for version sync) |
+| `.release-please-manifest.json` | Tracks current version (auto-updated) |
+| `.github/workflows/release-please.yml` | Creates release PRs |
+| `.github/workflows/release.yml` | Builds binary + publishes on tag push |
+
+### Homebrew Distribution
+
+The CLI is distributed via a Homebrew tap:
+
+```sh
+brew install iampoul/s0/s0
+```
+
+The tap repo (`iampoul/homebrew-s0`) is auto-updated by the release workflow. The `HOMEBREW_TAP_TOKEN` secret (fine-grained PAT with Contents write access to `homebrew-s0`) must be set in the `s0` repo's Actions secrets.
 
 ## Web (Next.js)
 
