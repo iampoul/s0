@@ -8,6 +8,7 @@ let package = Package(
         .macOS(.v14)
     ],
     products: [
+        .library(name: "S0ShowcaseLib", targets: ["S0ShowcaseLib"]),
         .executable(name: "S0-Showcase", targets: ["S0-Showcase"])
     ],
     dependencies: [],
