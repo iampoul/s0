@@ -8,8 +8,7 @@ import { useTheme } from "next-themes"
 const navLinks = [
   { label: "Components", href: "/docs/components" },
   { label: "Docs", href: "/docs" },
-  { label: "Pricing", href: "#" },
-  { label: "GitHub", href: "#" },
+  { label: "GitHub", href: "https://github.com/iampoul/s0" },
 ]
 
 export function Navbar() {
@@ -43,9 +42,6 @@ export function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <a href="#" className="text-sm font-sans text-muted-foreground hover:text-foreground transition-colors">
-            Sign in
-          </a>
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -79,9 +75,6 @@ export function Navbar() {
               {item.label}
             </Link>
           ))}
-          <a href="#" className="text-sm font-sans text-muted-foreground hover:text-foreground transition-colors">
-            Sign in
-          </a>
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

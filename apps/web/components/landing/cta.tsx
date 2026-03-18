@@ -37,14 +37,14 @@ export function CTA() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <a
-                href="#"
+                href="/docs/getting-started"
                 className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-medium text-sm px-8 py-3 rounded-sm hover:bg-primary/90 transition-colors duration-200"
               >
-                Get started free
+                Get started
                 <ArrowRight size={14} />
               </a>
               <a
-                href="#"
+                href="/docs"
                 className="inline-flex items-center gap-2 border border-border text-foreground text-sm font-medium px-8 py-3 rounded-sm hover:border-primary/50 transition-colors duration-200"
               >
                 Read the docs

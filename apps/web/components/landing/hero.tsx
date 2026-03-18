@@ -41,7 +41,7 @@ export function Hero() {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
           <a
-            href="#"
+            href="/docs/components"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-medium text-sm px-6 py-3 rounded-sm hover:bg-primary/90 transition-colors duration-200"
           >
             Explore Registry
@@ -57,8 +57,8 @@ export function Hero() {
         {/* Stats row */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12">
           {[
-            { value: "01", label: "Core Components" },
-            { value: "iOS 17+", label: "Target" },
+            { value: "24", label: "Components" },
+            { value: "iOS 17+", label: "& macOS 14+" },
             { value: "MIT", label: "Open Source" },
             { value: "0 deps", label: "Native only" },
           ].map(({ value, label }) => (

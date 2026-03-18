@@ -15,11 +15,10 @@ export function Footer() {
         {/* Links */}
         <div className="flex flex-wrap gap-x-8 gap-y-3">
           {[
-            { label: "Components", href: "#" },
-            { label: "Documentation", href: "#" },
-            { label: "Changelog", href: "#" },
-            { label: "GitHub", href: "#" },
-            { label: "License", href: "#" },
+            { label: "Components", href: "/docs/components" },
+            { label: "Documentation", href: "/docs" },
+            { label: "Getting Started", href: "/docs/getting-started" },
+            { label: "GitHub", href: "https://github.com/iampoul/s0" },
           ].map(({ label, href }) => (
             <a
               key={label}
@@ -33,7 +32,7 @@ export function Footer() {
 
         {/* Copyright */}
         <p className="text-xs text-muted-foreground font-mono">
-          © 2026 S0 Kit
+          © {new Date().getFullYear()} S0 Kit. MIT License.
         </p>
       </div>
     </footer>
