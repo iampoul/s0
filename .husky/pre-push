@@ -1,0 +1,11 @@
+echo "Running pre-push checks..."
+
+# Web tests
+echo "→ Web tests..."
+pnpm --filter web test --run || exit 1
+
+# CLI build + test
+echo "→ CLI build & test..."
+cd packages/s0-cli && swift build --quiet 2>&1 && swift test --quiet 2>&1 || exit 1
+
+echo "✓ All checks passed"
