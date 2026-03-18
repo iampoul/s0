@@ -1,4 +1,5 @@
 import SwiftUI
+import S0ShowcaseLib
 
 @main
 struct ShowcaseApp: App {

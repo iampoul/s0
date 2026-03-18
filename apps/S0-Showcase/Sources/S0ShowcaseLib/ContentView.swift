@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ContentView: View {
+public struct ContentView: View {
     @State private var inputText = ""
     @State private var textAreaText = ""
     @State private var toggleOn = true
@@ -14,7 +14,9 @@ struct ContentView: View {
     @State private var showSheet = false
     @State private var showToast = false
     
-    var body: some View {
+    public init() {}
+    
+    public var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: S0.Theme.Spacing.xxl) {

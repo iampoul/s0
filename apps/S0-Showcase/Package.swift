@@ -12,9 +12,14 @@ let package = Package(
     ],
     dependencies: [],
     targets: [
+        .target(
+            name: "S0ShowcaseLib",
+            dependencies: [],
+            path: "Sources/S0ShowcaseLib"
+        ),
         .executableTarget(
             name: "S0-Showcase",
-            dependencies: [],
+            dependencies: ["S0ShowcaseLib"],
             path: "Sources/S0-Showcase"
         ),
     ]
