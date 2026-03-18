@@ -1,28 +1,81 @@
 import Foundation
 import ArgumentParser
 
-@main
-struct S0: ParsableCommand {
-    static var configuration = CommandConfiguration(
-        commandName: "s0",
-        abstract: "The S0 CLI - A toolkit for SwiftUI components.",
-        subcommands: [Init.self, Add.self, List.self],
-        defaultSubcommand: Init.self
-    )
+// MARK: - Config
+
+struct S0Config: Codable {
+    let registryPath: String?
+    let outputPath: String?
+    
+    static func load() -> S0Config? {
+        let configPath = FileManager.default.currentDirectoryPath + "/s0.json"
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: configPath)),
+              let config = try? JSONDecoder().decode(S0Config.self, from: data) else {
+            return nil
+        }
+        return config
+    }
 }
+
+// MARK: - Registry Model
 
 struct Registry: Codable {
     struct Component: Codable {
         let name: String
         let category: String?
         let description: String?
+        let version: String?
         let files: [String]
         let dependencies: [String]
     }
+    let version: String?
     let components: [Component]
+    
+    static func load(from registryPath: String) throws -> Registry {
+        let url = URL(fileURLWithPath: registryPath).appendingPathComponent("registry.json")
+        guard let data = try? Data(contentsOf: url) else {
+            print("Error: Could not find registry.json at \(registryPath)")
+            print("  Run this from the S0 repo root, or pass --registry-path.")
+            throw ExitCode.failure
+        }
+        guard let registry = try? JSONDecoder().decode(Registry.self, from: data) else {
+            print("Error: Could not parse registry.json")
+            throw ExitCode.failure
+        }
+        return registry
+    }
 }
 
-extension S0 {
+// MARK: - Helpers
+
+func resolveRegistryPath(option: String) -> String {
+    if option != "." { return option }
+    return S0Config.load()?.registryPath ?? option
+}
+
+func resolveOutputPath() -> String {
+    let base = FileManager.default.currentDirectoryPath
+    if let config = S0Config.load(), let output = config.outputPath {
+        return base + "/" + output
+    }
+    return base + "/S0"
+}
+
+// MARK: - Main Command
+
+@main
+struct S0CLI: ParsableCommand {
+    static var configuration = CommandConfiguration(
+        commandName: "s0",
+        abstract: "The S0 CLI — A toolkit for SwiftUI components.",
+        subcommands: [Init.self, Add.self, Remove.self, Update.self, List.self, Doctor.self],
+        defaultSubcommand: Init.self
+    )
+}
+
+// MARK: - Init
+
+extension S0CLI {
     struct Init: ParsableCommand {
         static var configuration = CommandConfiguration(
             abstract: "Initialize S0 in your project."
@@ -30,8 +83,7 @@ extension S0 {
 
         func run() throws {
             let fileManager = FileManager.default
-            let currentPath = fileManager.currentDirectoryPath
-            let s0Path = currentPath + "/S0"
+            let s0Path = resolveOutputPath()
             let stylesPath = s0Path + "/Styles"
 
             print("Creating S0 directory structure...")
@@ -39,7 +91,340 @@ extension S0 {
             do {
                 try fileManager.createDirectory(atPath: stylesPath, withIntermediateDirectories: true)
                 
-                let themeContent = """
+                let themePath = stylesPath + "/S0Theme.swift"
+                if !fileManager.fileExists(atPath: themePath) {
+                    try themeTemplate.write(toFile: themePath, atomically: true, encoding: .utf8)
+                    print("✓ Created \(themePath.replacingOccurrences(of: fileManager.currentDirectoryPath + "/", with: ""))")
+                } else {
+                    print("! S0Theme.swift already exists, skipping.")
+                }
+
+                print("✓ S0 initialized successfully.")
+            } catch {
+                print("Error: Could not initialize S0: \(error)")
+                throw ExitCode.failure
+            }
+        }
+    }
+}
+
+// MARK: - Add
+
+extension S0CLI {
+    struct Add: ParsableCommand {
+        static var configuration = CommandConfiguration(
+            abstract: "Add a component to your project."
+        )
+
+        @Argument(help: "The name of the component to add.")
+        var componentName: String
+
+        @Option(name: .shortAndLong, help: "The local path to the registry.")
+        var registryPath: String = "."
+
+        func run() throws {
+            let resolved = resolveRegistryPath(option: registryPath)
+            let registry = try Registry.load(from: resolved)
+            let fileManager = FileManager.default
+            
+            try addComponent(name: componentName, registry: registry, registryPath: resolved, fileManager: fileManager)
+            
+            print("✓ Component '\(componentName)' added successfully.")
+        }
+        
+        private func addComponent(name: String, registry: Registry, registryPath: String, fileManager: FileManager) throws {
+            guard let component = registry.components.first(where: { $0.name.lowercased() == name.lowercased() }) else {
+                print("Error: Component '\(name)' not found in registry.")
+                print("  Run 's0 list' to see available components.")
+                throw ExitCode.failure
+            }
+            
+            for dependency in component.dependencies {
+                try addComponent(name: dependency, registry: registry, registryPath: registryPath, fileManager: fileManager)
+            }
+            
+            let s0Path = resolveOutputPath()
+            let uiPath = s0Path + "/UI"
+            if !fileManager.fileExists(atPath: uiPath) {
+                try fileManager.createDirectory(atPath: uiPath, withIntermediateDirectories: true)
+            }
+            
+            for filePath in component.files {
+                let sourceUrl = URL(fileURLWithPath: registryPath).appendingPathComponent(filePath)
+                let fileName = sourceUrl.lastPathComponent
+                let destinationPath = uiPath + "/" + fileName
+                
+                if fileManager.fileExists(atPath: destinationPath) {
+                    print("! \(fileName) already exists, skipping.")
+                    continue
+                }
+                
+                guard let content = try? String(contentsOf: sourceUrl, encoding: .utf8) else {
+                    print("Error: Could not read source file at \(sourceUrl.path)")
+                    continue
+                }
+                
+                try content.write(toFile: destinationPath, atomically: true, encoding: .utf8)
+                print("✓ Added \(fileName)")
+            }
+        }
+    }
+}
+
+// MARK: - Remove
+
+extension S0CLI {
+    struct Remove: ParsableCommand {
+        static var configuration = CommandConfiguration(
+            abstract: "Remove a component from your project."
+        )
+
+        @Argument(help: "The name of the component to remove.")
+        var componentName: String
+
+        @Option(name: .shortAndLong, help: "The local path to the registry.")
+        var registryPath: String = "."
+
+        @Flag(help: "Skip confirmation prompt.")
+        var force: Bool = false
+
+        func run() throws {
+            let resolved = resolveRegistryPath(option: registryPath)
+            let registry = try Registry.load(from: resolved)
+            let fileManager = FileManager.default
+
+            guard let component = registry.components.first(where: { $0.name.lowercased() == componentName.lowercased() }) else {
+                print("Error: Component '\(componentName)' not found in registry.")
+                throw ExitCode.failure
+            }
+            
+            // Check for dependents
+            let dependents = registry.components.filter { $0.dependencies.contains(where: { $0.lowercased() == componentName.lowercased() }) }
+            if !dependents.isEmpty {
+                let names = dependents.map { $0.name }.joined(separator: ", ")
+                print("⚠ Warning: The following components depend on '\(componentName)': \(names)")
+                if !force {
+                    print("  Use --force to remove anyway.")
+                    throw ExitCode.failure
+                }
+            }
+
+            let s0Path = resolveOutputPath()
+            let uiPath = s0Path + "/UI"
+            var removed = false
+
+            for filePath in component.files {
+                let fileName = URL(fileURLWithPath: filePath).lastPathComponent
+                let destinationPath = uiPath + "/" + fileName
+                
+                if fileManager.fileExists(atPath: destinationPath) {
+                    try fileManager.removeItem(atPath: destinationPath)
+                    print("✓ Removed \(fileName)")
+                    removed = true
+                } else {
+                    print("! \(fileName) not found, skipping.")
+                }
+            }
+
+            if removed {
+                print("✓ Component '\(componentName)' removed.")
+            } else {
+                print("! Component '\(componentName)' was not installed.")
+            }
+        }
+    }
+}
+
+// MARK: - Update
+
+extension S0CLI {
+    struct Update: ParsableCommand {
+        static var configuration = CommandConfiguration(
+            abstract: "Update a component from the registry (re-copies the file)."
+        )
+
+        @Argument(help: "The name of the component to update.")
+        var componentName: String
+
+        @Option(name: .shortAndLong, help: "The local path to the registry.")
+        var registryPath: String = "."
+
+        func run() throws {
+            let resolved = resolveRegistryPath(option: registryPath)
+            let registry = try Registry.load(from: resolved)
+            let fileManager = FileManager.default
+
+            guard let component = registry.components.first(where: { $0.name.lowercased() == componentName.lowercased() }) else {
+                print("Error: Component '\(componentName)' not found in registry.")
+                throw ExitCode.failure
+            }
+
+            let s0Path = resolveOutputPath()
+            let uiPath = s0Path + "/UI"
+
+            for filePath in component.files {
+                let sourceUrl = URL(fileURLWithPath: resolved).appendingPathComponent(filePath)
+                let fileName = sourceUrl.lastPathComponent
+                let destinationPath = uiPath + "/" + fileName
+
+                guard let newContent = try? String(contentsOf: sourceUrl, encoding: .utf8) else {
+                    print("Error: Could not read source file at \(sourceUrl.path)")
+                    continue
+                }
+                
+                if fileManager.fileExists(atPath: destinationPath) {
+                    let existingContent = try? String(contentsOfFile: destinationPath, encoding: .utf8)
+                    if existingContent == newContent {
+                        print("✓ \(fileName) is already up to date.")
+                        continue
+                    }
+                    try newContent.write(toFile: destinationPath, atomically: true, encoding: .utf8)
+                    print("✓ Updated \(fileName)")
+                } else {
+                    if !fileManager.fileExists(atPath: uiPath) {
+                        try fileManager.createDirectory(atPath: uiPath, withIntermediateDirectories: true)
+                    }
+                    try newContent.write(toFile: destinationPath, atomically: true, encoding: .utf8)
+                    print("✓ Added \(fileName) (was not installed)")
+                }
+            }
+
+            print("✓ Component '\(componentName)' updated.")
+        }
+    }
+}
+
+// MARK: - List
+
+extension S0CLI {
+    struct List: ParsableCommand {
+        static var configuration = CommandConfiguration(
+            abstract: "List all available components in the registry."
+        )
+
+        @Option(name: .shortAndLong, help: "The local path to the registry.")
+        var registryPath: String = "."
+
+        func run() throws {
+            let resolved = resolveRegistryPath(option: registryPath)
+            let registry = try Registry.load(from: resolved)
+
+            if registry.components.isEmpty {
+                print("No components found in registry.")
+                return
+            }
+
+            var grouped: [String: [Registry.Component]] = [:]
+            for component in registry.components {
+                let category = component.category ?? "other"
+                grouped[category, default: []].append(component)
+            }
+
+            print("Available components (\(registry.components.count)):\n")
+
+            for category in grouped.keys.sorted() {
+                print("  \(category)")
+                for component in grouped[category]! {
+                    let desc = component.description.map { " — \($0)" } ?? ""
+                    let deps = component.dependencies.isEmpty ? "" : " [requires: \(component.dependencies.joined(separator: ", "))]"
+                    let ver = component.version.map { " (v\($0))" } ?? ""
+                    print("    \(component.name)\(ver)\(desc)\(deps)")
+                }
+                print("")
+            }
+
+            print("Add a component with: s0 add <name>")
+        }
+    }
+}
+
+// MARK: - Doctor
+
+extension S0CLI {
+    struct Doctor: ParsableCommand {
+        static var configuration = CommandConfiguration(
+            abstract: "Validate your S0 project structure."
+        )
+
+        @Option(name: .shortAndLong, help: "The local path to the registry.")
+        var registryPath: String = "."
+
+        func run() throws {
+            let fileManager = FileManager.default
+            let currentPath = fileManager.currentDirectoryPath
+            let s0Path = resolveOutputPath()
+            var issues = 0
+
+            print("Checking S0 project structure...\n")
+
+            // Check s0.json
+            let configPath = currentPath + "/s0.json"
+            if fileManager.fileExists(atPath: configPath) {
+                print("✓ s0.json found")
+                if let config = S0Config.load() {
+                    if let rp = config.registryPath { print("  registryPath: \(rp)") }
+                    if let op = config.outputPath { print("  outputPath: \(op)") }
+                } else {
+                    print("⚠ s0.json exists but could not be parsed")
+                    issues += 1
+                }
+            } else {
+                print("· s0.json not found (optional)")
+            }
+
+            // Check S0 directory
+            if fileManager.fileExists(atPath: s0Path) {
+                print("✓ S0 directory exists at \(s0Path.replacingOccurrences(of: currentPath + "/", with: ""))")
+            } else {
+                print("✗ S0 directory not found. Run 's0 init' first.")
+                issues += 1
+            }
+
+            // Check theme file
+            let themePath = s0Path + "/Styles/S0Theme.swift"
+            if fileManager.fileExists(atPath: themePath) {
+                print("✓ S0Theme.swift found")
+            } else {
+                print("✗ S0Theme.swift not found. Run 's0 init' to create it.")
+                issues += 1
+            }
+
+            // Check UI directory and installed components
+            let uiPath = s0Path + "/UI"
+            if fileManager.fileExists(atPath: uiPath) {
+                let files = (try? fileManager.contentsOfDirectory(atPath: uiPath))?.filter { $0.hasSuffix(".swift") } ?? []
+                print("✓ \(files.count) component(s) installed in S0/UI/")
+                
+                // Verify against registry
+                let resolved = resolveRegistryPath(option: registryPath)
+                if let registry = try? Registry.load(from: resolved) {
+                    for file in files {
+                        let matchesRegistry = registry.components.contains { component in
+                            component.files.contains { URL(fileURLWithPath: $0).lastPathComponent == file }
+                        }
+                        if !matchesRegistry {
+                            print("  ⚠ \(file) is not in the registry (custom or outdated)")
+                        }
+                    }
+                }
+            } else {
+                print("· S0/UI/ not found (no components installed yet)")
+            }
+
+            // Summary
+            print("")
+            if issues == 0 {
+                print("✓ No issues found.")
+            } else {
+                print("✗ \(issues) issue(s) found.")
+            }
+        }
+    }
+}
+
+// MARK: - Theme Template
+
+private let themeTemplate = """
 import SwiftUI
 
 #if canImport(UIKit)
@@ -164,141 +549,3 @@ extension View {
     }
 }
 """
-                let themePath = stylesPath + "/S0Theme.swift"
-                if !fileManager.fileExists(atPath: themePath) {
-                    try themeContent.write(toFile: themePath, atomically: true, encoding: .utf8)
-                    print("✓ Created S0/Styles/S0Theme.swift")
-                } else {
-                    print("! S0Theme.swift already exists, skipping.")
-                }
-
-                print("✓ S0 initialized successfully.")
-            } catch {
-                print("Error: Could not initialize S0: \(error)")
-                throw ExitCode.failure
-            }
-        }
-    }
-
-    struct Add: ParsableCommand {
-        static var configuration = CommandConfiguration(
-            abstract: "Add a component to your project."
-        )
-
-        @Argument(help: "The name of the component to add.")
-        var componentName: String
-
-        @Option(name: .shortAndLong, help: "The local path to the registry (for development).")
-        var registryPath: String = "."
-
-        func run() throws {
-            let fileManager = FileManager.default
-            
-            // 1. Read registry.json
-            let registryFileUrl = URL(fileURLWithPath: registryPath).appendingPathComponent("registry.json")
-            guard let registryData = try? Data(contentsOf: registryFileUrl) else {
-                print("Error: Could not find registry.json at \(registryPath)")
-                throw ExitCode.failure
-            }
-            
-            let decoder = JSONDecoder()
-            guard let registry = try? decoder.decode(Registry.self, from: registryData) else {
-                print("Error: Could not parse registry.json")
-                throw ExitCode.failure
-            }
-            
-            try addComponent(name: componentName, registry: registry, fileManager: fileManager)
-            
-            print("✓ Component '\(componentName)' and its dependencies added successfully.")
-        }
-        
-        private func addComponent(name: String, registry: Registry, fileManager: FileManager) throws {
-            guard let component = registry.components.first(where: { $0.name.lowercased() == name.lowercased() }) else {
-                print("Error: Component '\(name)' not found in registry.")
-                return
-            }
-            
-            // 1. Add dependencies first
-            for dependency in component.dependencies {
-                try addComponent(name: dependency, registry: registry, fileManager: fileManager)
-            }
-            
-            // 2. Ensure S0 directory exists
-            let currentPath = fileManager.currentDirectoryPath
-            let uiPath = currentPath + "/S0/UI"
-            if !fileManager.fileExists(atPath: uiPath) {
-                try fileManager.createDirectory(atPath: uiPath, withIntermediateDirectories: true)
-            }
-            
-            // 3. Copy files
-            for filePath in component.files {
-                let sourceUrl = URL(fileURLWithPath: registryPath).appendingPathComponent(filePath)
-                let fileName = sourceUrl.lastPathComponent
-                let destinationPath = uiPath + "/" + fileName
-                
-                if fileManager.fileExists(atPath: destinationPath) {
-                    print("! \(fileName) already exists, skipping.")
-                    continue
-                }
-                
-                guard let content = try? String(contentsOf: sourceUrl, encoding: .utf8) else {
-                    print("Error: Could not read source file at \(sourceUrl.path)")
-                    continue
-                }
-                
-                try content.write(toFile: destinationPath, atomically: true, encoding: .utf8)
-                print("✓ Added \(fileName) to S0/UI/")
-            }
-        }
-    }
-
-    struct List: ParsableCommand {
-        static var configuration = CommandConfiguration(
-            abstract: "List all available components in the registry."
-        )
-
-        @Option(name: .shortAndLong, help: "The local path to the registry (for development).")
-        var registryPath: String = "."
-
-        func run() throws {
-            let registryFileUrl = URL(fileURLWithPath: registryPath).appendingPathComponent("registry.json")
-            guard let registryData = try? Data(contentsOf: registryFileUrl) else {
-                print("Error: Could not find registry.json at \(registryPath)")
-                print("  Run this from the S0 repo root, or pass --registry-path.")
-                throw ExitCode.failure
-            }
-
-            let decoder = JSONDecoder()
-            guard let registry = try? decoder.decode(Registry.self, from: registryData) else {
-                print("Error: Could not parse registry.json")
-                throw ExitCode.failure
-            }
-
-            if registry.components.isEmpty {
-                print("No components found in registry.")
-                return
-            }
-
-            // Group by category
-            var grouped: [String: [Registry.Component]] = [:]
-            for component in registry.components {
-                let category = component.category ?? "other"
-                grouped[category, default: []].append(component)
-            }
-
-            print("Available components (\(registry.components.count)):\n")
-
-            for category in grouped.keys.sorted() {
-                print("  \(category)")
-                for component in grouped[category]! {
-                    let desc = component.description.map { " — \($0)" } ?? ""
-                    let deps = component.dependencies.isEmpty ? "" : " [requires: \(component.dependencies.joined(separator: ", "))]"
-                    print("    \(component.name)\(desc)\(deps)")
-                }
-                print("")
-            }
-
-            print("Add a component with: s0 add <name>")
-        }
-    }
-}

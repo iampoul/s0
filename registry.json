@@ -9,169 +9,243 @@
       "name": "button",
       "category": "primitives",
       "description": "A customizable button component with multiple variants.",
-      "files": ["registry/ui/Button.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Button.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "badge",
       "category": "primitives",
       "description": "A small label for status, counts, or categories.",
-      "files": ["registry/ui/Badge.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Badge.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "toggle",
       "category": "primitives",
       "description": "A styled switch control with an optional label.",
-      "files": ["registry/ui/Toggle.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Toggle.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "separator",
       "category": "primitives",
       "description": "A horizontal or vertical divider line.",
-      "files": ["registry/ui/Separator.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Separator.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "avatar",
       "category": "primitives",
       "description": "A circular image with fallback initials.",
-      "files": ["registry/ui/Avatar.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Avatar.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "progress",
       "category": "primitives",
       "description": "A determinate progress bar.",
-      "files": ["registry/ui/Progress.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Progress.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "spinner",
       "category": "primitives",
       "description": "An indeterminate loading indicator.",
-      "files": ["registry/ui/Spinner.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Spinner.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "skeleton",
       "category": "primitives",
       "description": "A placeholder shimmer for loading states.",
-      "files": ["registry/ui/Skeleton.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Skeleton.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "card",
       "category": "layout",
       "description": "A container for content with header, body, and footer sections.",
-      "files": ["registry/ui/Card.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Card.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "tabs",
       "category": "layout",
       "description": "Segmented tab navigation with trigger and content panels.",
-      "files": ["registry/ui/Tabs.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Tabs.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "alert",
       "category": "layout",
       "description": "An inline alert banner with icon and variant styling.",
-      "files": ["registry/ui/Alert.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Alert.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "sheet",
       "category": "layout",
       "description": "A bottom sheet modal with drag indicator and detents.",
-      "files": ["registry/ui/Sheet.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Sheet.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "accordion",
       "category": "layout",
       "description": "Collapsible content sections with animated expand/collapse.",
-      "files": ["registry/ui/Accordion.swift"],
-      "dependencies": ["separator"]
+      "files": [
+        "registry/ui/Accordion.swift"
+      ],
+      "dependencies": [
+        "separator"
+      ],
+      "version": "1.0.0"
     },
     {
       "name": "dropdown-menu",
       "category": "layout",
       "description": "A contextual menu with items, icons, and destructive actions.",
-      "files": ["registry/ui/DropdownMenu.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/DropdownMenu.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "popover",
       "category": "layout",
       "description": "A floating content panel triggered by a button.",
-      "files": ["registry/ui/Popover.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Popover.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "toast",
       "category": "layout",
       "description": "A non-blocking notification with auto-dismiss.",
-      "files": ["registry/ui/Toast.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Toast.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "input",
       "category": "forms",
       "description": "A styled text input field with optional label support.",
-      "files": ["registry/ui/Input.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Input.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "checkbox",
       "category": "forms",
       "description": "A toggleable checkmark with an optional label.",
-      "files": ["registry/ui/Checkbox.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Checkbox.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "radio-group",
       "category": "forms",
       "description": "A single-select group of radio buttons.",
-      "files": ["registry/ui/RadioGroup.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/RadioGroup.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "select",
       "category": "forms",
       "description": "A dropdown picker with optional label.",
-      "files": ["registry/ui/Select.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Select.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "slider",
       "category": "forms",
       "description": "A range input with track and thumb.",
-      "files": ["registry/ui/Slider.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Slider.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "stepper",
       "category": "forms",
       "description": "An increment/decrement control with label.",
-      "files": ["registry/ui/Stepper.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Stepper.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "textarea",
       "category": "forms",
       "description": "A multi-line text input field.",
-      "files": ["registry/ui/TextArea.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/TextArea.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     },
     {
       "name": "label",
       "category": "forms",
       "description": "A form field label with optional required indicator.",
-      "files": ["registry/ui/Label.swift"],
-      "dependencies": []
+      "files": [
+        "registry/ui/Label.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     }
   ]
 }

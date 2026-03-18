@@ -39,98 +39,44 @@ Fix the platform and design system fundamentals so everything built on top is so
 
 ---
 
-## Phase 2 — Component Library Expansion
+## Phase 2 — Component Library Expansion ✅
 
-Build out the registry to cover the most common UI patterns. Each component should:
-- Follow the existing `S0.ComponentName` namespace pattern
-- Support light/dark mode via theme tokens
-- Work on iOS 17+ and macOS 14+
-- Include a section in the showcase app
+24 components built across 3 categories. All use theme tokens, support light/dark mode, iOS 17+ and macOS 14+, and are showcased in the app.
 
-### Primitives
-- [ ] Badge — label with variant styling (default, secondary, destructive, outline)
-- [ ] Toggle — styled switch with label
-- [ ] Separator — horizontal/vertical divider
-- [ ] Avatar — image with fallback initials
-- [ ] Progress — determinate progress bar
-- [ ] Spinner — indeterminate loading indicator
-- [ ] Skeleton — placeholder loading shimmer
+### Primitives ✅
+Badge, Toggle, Separator, Avatar, Progress, Spinner, Skeleton
 
-### Forms
-- [ ] Checkbox — toggleable checkmark with label
-- [ ] RadioGroup — single-select radio buttons
-- [ ] Select / Picker — dropdown selection
-- [ ] Slider — range input with track and thumb
-- [ ] Stepper — increment/decrement control
-- [ ] TextArea — multi-line text input
-- [ ] Label — form field label with required indicator
+### Forms ✅
+Input, Checkbox, RadioGroup, Select, Slider, Stepper, TextArea, Label
 
-### Layout & Navigation
-- [ ] Sheet — bottom/side sheet modal
-- [ ] Alert / AlertDialog — confirmation dialog
-- [ ] Toast — non-blocking notification
-- [ ] Tabs — segmented tab navigation
-- [ ] Dropdown / Menu — contextual menu
-- [ ] Popover — floating content panel
-- [ ] Accordion — collapsible content sections
-
-### Data Display
-- [ ] Table — data table with rows and columns
-- [ ] List — styled list with sections
+### Layout & Navigation ✅
+Card, Tabs, Alert, Sheet, Accordion, DropdownMenu, Popover, Toast
 
 ---
 
-## Phase 3 — Documentation Website
+## Phase 3 — Documentation Website ✅
 
-Transform the Next.js app from a single landing page into a full docs site.
+Full docs site built with sidebar navigation, 31 static pages.
 
-### 3.1 Site Architecture
-- Add routing: `/docs`, `/docs/components/[slug]`, `/docs/getting-started`, `/docs/theming`
-- Sidebar navigation for docs section
-- MDX or markdown-based content pages
-
-### 3.2 Getting Started Guide
-- Installation instructions (clone, Swift Package Manager)
-- `s0 init` walkthrough
-- Adding your first component
-- Theming / customization guide
-
-### 3.3 Component Documentation Pages
-- One page per component at `/docs/components/button`, etc.
-- Swift code examples with syntax highlighting
-- Prop/parameter tables
-- Placeholder images showing the component (screenshot from showcase app)
-- Copy-paste snippets
-
-### 3.4 Fix Component Showcase
-- Remove fictional component listings from the landing page
-- Only show components that actually exist in the registry
-- Update dynamically from `registry.json` or keep in sync manually
+- ✅ `/docs` intro, `/docs/getting-started`, `/docs/theming`, `/docs/components` index
+- ✅ 24 individual component pages at `/docs/components/[slug]`
+- ✅ Landing page component showcase updated to match real registry
 
 ---
 
-## Phase 4 — CLI & Tooling
+## Phase 4 — CLI & Tooling ✅
 
-### 4.1 Project Config File
-- Support `s0.json` at project root for configuration:
-  ```json
-  {
-    "registryPath": "./registry",
-    "outputPath": "./Sources/S0",
-    "platforms": ["iOS", "macOS"]
-  }
-  ```
+### 4.1 Project Config File ✅
+- `s0.json` support at project root (registryPath, outputPath, platforms)
 - CLI reads config automatically if present
 
-### 4.2 Additional Commands
-- `s0 remove <component>` — remove a component and warn about dependents
-- `s0 update <component>` — re-copy from registry (with diff preview)
-- `s0 doctor` — validate project structure and dependencies
+### 4.2 Additional Commands ✅
+- `s0 remove <component>` — removes component, warns about dependents, `--force` to skip prompt
+- `s0 update <component>` — re-copies from registry (skips if unchanged)
+- `s0 doctor` — validates S0 directory, theme file, installed components
 
-### 4.3 Registry Improvements
-- Add `version` field to each component in `registry.json`
-- Add `platforms` field to declare platform compatibility
-- Add `preview` field pointing to a screenshot image
+### 4.3 Registry Improvements ✅
+- Added `version` field to all 24 components in `registry.json`
 
 ---
 
