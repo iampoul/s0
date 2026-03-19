@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/iampoul/s0/compare/v0.2.0...v0.2.1) (2026-03-19)
+
+
+### Bug Fixes
+
+* add navbar/footer to changelog page, fix version test ([9ddc3ab](https://github.com/iampoul/s0/commit/9ddc3ab82a5e87c75307a4b884f3024dbb31d317))
+
 ## [0.2.0](https://github.com/iampoul/s0/compare/v0.1.0...v0.2.0) (2026-03-19)
 
 
