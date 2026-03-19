@@ -82,8 +82,11 @@ jobs:
             packages/s0-cli/dist/s0-${{ steps.package.outputs.VERSION }}-universal-apple-darwin.tar.gz.sha256
 
       - name: Update Homebrew tap
-        if: ${{ env.HOMEBREW_TAP_TOKEN != '' }}
         run: |
+          if [ -z "$HOMEBREW_TAP_TOKEN" ]; then
+            echo "::warning::HOMEBREW_TAP_TOKEN not set, skipping tap update"
+            exit 0
+          fi
           VERSION="${{ steps.package.outputs.VERSION }}"
           SHA256=$(awk '{print $1}' packages/s0-cli/dist/s0-${VERSION}-universal-apple-darwin.tar.gz.sha256)
           URL="https://github.com/iampoul/s0/releases/download/v${VERSION}/s0-${VERSION}-universal-apple-darwin.tar.gz"
