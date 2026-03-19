@@ -1,8 +1,17 @@
 import { ArrowRight, Terminal } from "lucide-react"
-import packageJson from "../../package.json"
+import fs from "fs"
+import path from "path"
+
+function getVersion() {
+  try {
+    return fs.readFileSync(path.join(process.cwd(), "..", "..", "version.txt"), "utf-8").trim()
+  } catch {
+    return "0.0.0"
+  }
+}
 
 export function Hero() {
-  const version = packageJson.version
+  const version = getVersion()
 
   return (
     <section className="relative pt-32 pb-20 px-6 overflow-hidden">
