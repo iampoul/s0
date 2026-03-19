@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0](https://github.com/iampoul/s0/compare/v0.1.0...v0.2.0) (2026-03-19)
+
+
+### Features
+
+* add 8 new components (Table, SearchBar, Dialog, DatePicker, NavigationBar, SegmentedControl, Tooltip, ScrollArea) ([56959c3](https://github.com/iampoul/s0/commit/56959c32e82cca18f6d967278394b59cefe70f73))
+* add dynamic version badge and changelog page ([bf458d6](https://github.com/iampoul/s0/commit/bf458d60453653e1226f65e2bf99e56ad2c609c7))
+
 ## [0.1.0](https://github.com/iampoul/s0/releases/tag/v0.1.0) — 2026-03-18
 
 ### Features
