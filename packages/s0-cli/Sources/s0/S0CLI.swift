@@ -538,6 +538,7 @@ extension S0CLI {
 
             // Summary
             print("")
+            print("· CLI version: \(s0Version)")
             if issues == 0 {
                 print("✓ No issues found.")
             } else {
