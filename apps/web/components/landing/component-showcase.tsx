@@ -2,35 +2,21 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { components as allComponents } from "@/lib/docs-data"
 
 const categoryFilters = ["All", "Primitives", "Forms", "Layout"] as const
 
-const components = [
-  { name: "S0.Button", slug: "button", category: "Primitives" },
-  { name: "S0.Badge", slug: "badge", category: "Primitives" },
-  { name: "S0.Toggle", slug: "toggle", category: "Primitives" },
-  { name: "S0.Separator", slug: "separator", category: "Primitives" },
-  { name: "S0.Avatar", slug: "avatar", category: "Primitives" },
-  { name: "S0.Progress", slug: "progress", category: "Primitives" },
-  { name: "S0.Spinner", slug: "spinner", category: "Primitives" },
-  { name: "S0.Skeleton", slug: "skeleton", category: "Primitives" },
-  { name: "S0.Card", slug: "card", category: "Layout" },
-  { name: "S0.Tabs", slug: "tabs", category: "Layout" },
-  { name: "S0.Alert", slug: "alert", category: "Layout" },
-  { name: "S0.Sheet", slug: "sheet", category: "Layout" },
-  { name: "S0.Accordion", slug: "accordion", category: "Layout" },
-  { name: "S0.DropdownMenu", slug: "dropdown-menu", category: "Layout" },
-  { name: "S0.Popover", slug: "popover", category: "Layout" },
-  { name: "S0.Toast", slug: "toast", category: "Layout" },
-  { name: "S0.Input", slug: "input", category: "Forms" },
-  { name: "S0.Checkbox", slug: "checkbox", category: "Forms" },
-  { name: "S0.RadioGroup", slug: "radio-group", category: "Forms" },
-  { name: "S0.Select", slug: "select", category: "Forms" },
-  { name: "S0.Slider", slug: "slider", category: "Forms" },
-  { name: "S0.Stepper", slug: "stepper", category: "Forms" },
-  { name: "S0.TextArea", slug: "textarea", category: "Forms" },
-  { name: "S0.Label", slug: "label", category: "Forms" },
-]
+const categoryMap: Record<string, string> = {
+  primitives: "Primitives",
+  forms: "Forms",
+  layout: "Layout",
+}
+
+const components = allComponents.map((c) => ({
+  name: `S0.${c.name}`,
+  slug: c.slug,
+  category: categoryMap[c.category] || c.category,
+}))
 
 export function ComponentShowcase() {
   const [active, setActive] = useState<(typeof categoryFilters)[number]>("All")
