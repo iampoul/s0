@@ -29,6 +29,8 @@ jobs:
     runs-on: macos-15
     permissions:
       contents: write
+    env:
+      HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -80,9 +82,7 @@ jobs:
             packages/s0-cli/dist/s0-${{ steps.package.outputs.VERSION }}-universal-apple-darwin.tar.gz.sha256
 
       - name: Update Homebrew tap
-        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
-        env:
-          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        if: ${{ env.HOMEBREW_TAP_TOKEN != '' }}
         run: |
           VERSION="${{ steps.package.outputs.VERSION }}"
           SHA256=$(awk '{print $1}' packages/s0-cli/dist/s0-${VERSION}-universal-apple-darwin.tar.gz.sha256)
