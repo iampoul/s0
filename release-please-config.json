@@ -6,11 +6,16 @@
       "extra-files": [
         {
           "type": "generic",
-          "path": "packages/s0-cli/Sources/s0/main.swift"
+          "path": "packages/s0-cli/Sources/s0/S0CLI.swift"
         },
         {
           "type": "json",
           "path": "package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "apps/web/package.json",
           "jsonpath": "$.version"
         }
       ]
