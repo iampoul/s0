@@ -1,6 +1,9 @@
 import { ArrowRight, Terminal } from "lucide-react"
+import packageJson from "../../package.json"
 
 export function Hero() {
+  const version = packageJson.version
+
   return (
     <section className="relative pt-32 pb-20 px-6 overflow-hidden">
       {/* Grid background */}
@@ -22,7 +25,7 @@ export function Hero() {
         <div className="inline-flex items-center gap-2 border border-border bg-card px-3 py-1 rounded-sm mb-8">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           <span className="font-mono text-xs text-muted-foreground tracking-widest uppercase">
-            v0.1 — Beta Launch
+            v{version} — Beta Launch
           </span>
         </div>
 
@@ -57,7 +60,7 @@ export function Hero() {
         {/* Stats row */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12">
           {[
-            { value: "24", label: "Components" },
+            { value: "32", label: "Components" },
             { value: "iOS 17+", label: "& macOS 14+" },
             { value: "MIT", label: "Open Source" },
             { value: "0 deps", label: "Native only" },
