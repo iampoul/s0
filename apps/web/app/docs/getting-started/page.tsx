@@ -33,11 +33,11 @@ export default function GettingStartedPage() {
           Clone or download the S0 CLI tool:
         </p>
         <CodeBlock>{`# Using Homebrew
-brew install s0-dev/tap/s0
+brew install iampoul/s0/s0
 
 # Or clone and build
-git clone https://github.com/s0-dev/s0-cli.git
-cd s0-cli && swift build -c release`}</CodeBlock>
+git clone https://github.com/iampoul/s0.git
+cd s0/packages/s0-cli && swift build -c release`}</CodeBlock>
       </section>
 
       {/* Step 2 */}
