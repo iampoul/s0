@@ -12,8 +12,109 @@ jobs:
   release-please:
     name: Create Release PR
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  build-and-release:
+    name: Build & Release
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: macos-15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and verify CLI
+        working-directory: packages/s0-cli
+        run: |
+          swift build -c release 2>&1
+          CLI_VERSION=$(.build/release/s0 --version 2>&1)
+          TAG_VERSION="${{ needs.release-please.outputs.tag_name }}"
+          TAG_VERSION="${TAG_VERSION#v}"
+          echo "CLI version: $CLI_VERSION, Tag version: $TAG_VERSION"
+          if [ "$CLI_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::CLI version ($CLI_VERSION) does not match tag version ($TAG_VERSION)"
+            exit 1
+          fi
+
+      - name: Build universal binary
+        working-directory: packages/s0-cli
+        run: |
+          swift build -c release --arch arm64 --arch x86_64
+          strip .build/apple/Products/Release/s0
+
+      - name: Package binary
+        id: package
+        working-directory: packages/s0-cli
+        run: |
+          VERSION="${{ needs.release-please.outputs.tag_name }}"
+          VERSION="${VERSION#v}"
+          mkdir -p dist
+          cp .build/apple/Products/Release/s0 dist/s0
+          cd dist
+          tar czf "s0-${VERSION}-universal-apple-darwin.tar.gz" s0
+          shasum -a 256 "s0-${VERSION}-universal-apple-darwin.tar.gz" > "s0-${VERSION}-universal-apple-darwin.tar.gz.sha256"
+          cat "s0-${VERSION}-universal-apple-darwin.tar.gz.sha256"
+          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: |
+            packages/s0-cli/dist/s0-${{ steps.package.outputs.VERSION }}-universal-apple-darwin.tar.gz
+            packages/s0-cli/dist/s0-${{ steps.package.outputs.VERSION }}-universal-apple-darwin.tar.gz.sha256
+
+      - name: Update Homebrew tap
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        if: ${{ env.HOMEBREW_TAP_TOKEN != '' }}
+        run: |
+          VERSION="${{ steps.package.outputs.VERSION }}"
+          SHA256=$(awk '{print $1}' packages/s0-cli/dist/s0-${VERSION}-universal-apple-darwin.tar.gz.sha256)
+          URL="https://github.com/iampoul/s0/releases/download/v${VERSION}/s0-${VERSION}-universal-apple-darwin.tar.gz"
+
+          git clone https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/iampoul/homebrew-s0.git /tmp/homebrew-s0
+          mkdir -p /tmp/homebrew-s0/Formula
+
+          cat > /tmp/homebrew-s0/Formula/s0.rb <<FORMULA
+class S0 < Formula
+  desc "A code-first SwiftUI component kit for Apple platforms"
+  homepage "https://github.com/iampoul/s0"
+  url "${URL}"
+  sha256 "${SHA256}"
+  version "${VERSION}"
+  license "MIT"
+
+  depends_on :macos
+
+  def install
+    bin.install "s0"
+  end
+
+  test do
+    assert_match "${VERSION}", shell_output("\#{bin}/s0 --version")
+  end
+end
+FORMULA
+
+          cd /tmp/homebrew-s0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/s0.rb
+          git commit -m "Update s0 to ${VERSION}" || echo "No changes to commit"
+          git push
