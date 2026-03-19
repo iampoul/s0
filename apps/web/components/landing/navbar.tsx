@@ -9,7 +9,6 @@ const navLinks = [
   { label: "Components", href: "/docs/components" },
   { label: "Themes", href: "/themes" },
   { label: "Docs", href: "/docs" },
-  { label: "Changelog", href: "/changelog" },
   { label: "GitHub", href: "https://github.com/iampoul/s0" },
 ]
 
