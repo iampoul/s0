@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.2](https://github.com/iampoul/s0/compare/v0.2.1...v0.2.2) (2026-03-19)
+
+
+### Bug Fixes
+
+* consolidate release into single workflow ([7a3f1fd](https://github.com/iampoul/s0/commit/7a3f1fdeddbb64710e1b5ea9055b0d852f996ecf))
+* derive component counts from docs-data everywhere ([54cf099](https://github.com/iampoul/s0/commit/54cf0999e5ecb4d3651c6a896ca27e97e42bf36c))
+* fix YAML parsing error in release workflow ([eb33899](https://github.com/iampoul/s0/commit/eb338993d048343db39c7165da6e45386ba66617))
+
 ## [0.2.1](https://github.com/iampoul/s0/compare/v0.2.0...v0.2.1) (2026-03-19)
 
 
