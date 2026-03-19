@@ -10,8 +10,8 @@ import {
 
 describe('docs-data', () => {
   describe('components', () => {
-    it('exports 24 components', () => {
-      expect(components).toHaveLength(24)
+    it('exports 32 components', () => {
+      expect(components).toHaveLength(32)
     })
 
     it('every component has required fields', () => {

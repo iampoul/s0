@@ -456,6 +456,178 @@ S0.TextArea("Bio", text: $bio, placeholder: "Tell us about yourself")`,
       { name: "required", type: "Bool", default: "false", description: 'Shows a red asterisk "*" when true.' },
     ],
   },
+
+  // ── New Components ──────────────────────────────────────────────────
+  {
+    name: "Table",
+    slug: "table",
+    description: "A data table with sortable columns and rows.",
+    category: "layout",
+    usage: [
+      `S0.Table(columns: [
+    S0.TableColumn("Name", keyPath: \\.name),
+    S0.TableColumn("Email", keyPath: \\.email),
+], rows: users)`,
+      `S0.Table(columns: [
+    S0.TableColumn("Name", keyPath: \\.name, sortable: true),
+    S0.TableColumn("Age", keyPath: \\.age, sortable: true),
+], rows: people, valueProvider: { row, col in
+    "\\(row[keyPath: col])"
+})`,
+    ],
+    props: [
+      { name: "columns", type: "[TableColumn]", description: "Array of column definitions." },
+      { name: "rows", type: "[Row]", description: "Array of row data." },
+      { name: "valueProvider", type: "(Row, String) -> String", description: "Closure that returns the display string for a given row and column key." },
+    ],
+  },
+  {
+    name: "SearchBar",
+    slug: "search-bar",
+    description: "Styled search input with clear button and submit action.",
+    category: "forms",
+    usage: [
+      `@State private var query = ""
+
+S0.SearchBar(text: $query)`,
+      `S0.SearchBar(text: $query, placeholder: "Find a recipe…") {
+    performSearch()
+}`,
+    ],
+    props: [
+      { name: "text", type: "Binding<String>", description: "Binding to the search text." },
+      { name: "placeholder", type: "String", default: '"Search..."', description: "Placeholder text displayed when empty." },
+      { name: "onSubmit", type: "(() -> Void)?", default: "nil", description: "Closure invoked when the user submits the search." },
+    ],
+  },
+  {
+    name: "Dialog",
+    slug: "dialog",
+    description: "Modal dialog with title, description, and action buttons.",
+    category: "layout",
+    usage: [
+      `@State private var showDialog = false
+
+S0.Dialog(isPresented: $showDialog, title: "Confirm Deletion") {
+    S0.Button("Delete", variant: .destructive, action: { })
+    S0.Button("Cancel", variant: .outline, action: { showDialog = false })
+}`,
+      `Button("Show Dialog") { showDialog = true }
+    .s0Dialog(isPresented: $showDialog, title: "Are you sure?", description: "This action cannot be undone.") {
+        S0.Button("Confirm", action: { })
+    }`,
+    ],
+    props: [
+      { name: "isPresented", type: "Binding<Bool>", description: "Controls dialog visibility." },
+      { name: "title", type: "String", description: "Dialog title text." },
+      { name: "description", type: "String?", default: "nil", description: "Optional description text below the title." },
+    ],
+  },
+  {
+    name: "DatePicker",
+    slug: "date-picker",
+    description: "Styled date and time picker with graphical and compact variants.",
+    category: "forms",
+    usage: [
+      `@State private var date = Date()
+
+S0.DatePicker("Birthday", selection: $date)`,
+      `S0.DatePicker("Appointment", selection: $date, variant: .compact)`,
+      `S0.DatePicker("Event", selection: $date, displayedComponents: [.date, .hourAndMinute])`,
+    ],
+    props: [
+      { name: "label", type: "String?", default: "nil", description: "Optional label above the picker." },
+      { name: "selection", type: "Binding<Date>", description: "Binding to the selected date." },
+      { name: "variant", type: "DatePickerVariant", default: ".default", description: "Display variant: .default (graphical), .compact." },
+      { name: "displayedComponents", type: "DatePicker.Components", default: "[.date]", description: "Components to display: .date, .hourAndMinute." },
+    ],
+  },
+  {
+    name: "NavigationBar",
+    slug: "navigation-bar",
+    description: "Custom navigation header with title, subtitle, and action slots.",
+    category: "layout",
+    usage: [
+      `S0.NavigationBar(title: "Settings")`,
+      `S0.NavigationBar(title: "Profile", subtitle: "Edit your info") {
+    S0.Button(variant: .ghost, size: .icon, action: { goBack() }) {
+        Image(systemName: "chevron.left")
+    }
+} trailing: {
+    S0.Button(variant: .ghost, size: .icon, action: { }) {
+        Image(systemName: "gearshape")
+    }
+}`,
+    ],
+    props: [
+      { name: "title", type: "String", description: "Primary title text." },
+      { name: "subtitle", type: "String?", default: "nil", description: "Optional subtitle below the title." },
+      { name: "leading", type: "@ViewBuilder () -> Leading", description: "View displayed on the leading (left) side." },
+      { name: "trailing", type: "@ViewBuilder () -> Trailing", description: "View displayed on the trailing (right) side." },
+    ],
+  },
+  {
+    name: "SegmentedControl",
+    slug: "segmented-control",
+    description: "Horizontal segment picker for switching between options.",
+    category: "forms",
+    usage: [
+      `@State private var view = "list"
+
+S0.SegmentedControl(selection: $view, options: [
+    (value: "list", label: "List"),
+    (value: "grid", label: "Grid"),
+    (value: "map", label: "Map"),
+])`,
+    ],
+    props: [
+      { name: "selection", type: "Binding<Value>", description: "Binding to the currently selected value." },
+      { name: "options", type: "[(value: Value, label: String)]", description: "Array of value-label pairs for each segment." },
+    ],
+  },
+  {
+    name: "Tooltip",
+    slug: "tooltip",
+    description: "Floating hint on hover or long-press.",
+    category: "layout",
+    usage: [
+      `S0.Button("Save", action: { })
+    .s0Tooltip("Save your changes")`,
+      `Image(systemName: "info.circle")
+    .s0Tooltip("More information", edge: .bottom)`,
+    ],
+    props: [
+      { name: "message", type: "String", description: "Tooltip text to display." },
+      { name: "edge", type: "TooltipEdge", default: ".top", description: "Preferred edge for placement: .top, .bottom, .leading, .trailing." },
+    ],
+  },
+  {
+    name: "ScrollArea",
+    slug: "scroll-area",
+    description: "Styled scrollable container with configurable axes.",
+    category: "layout",
+    usage: [
+      `S0.ScrollArea(maxHeight: 300) {
+    VStack {
+        ForEach(items) { item in
+            Text(item.name)
+        }
+    }
+}`,
+      `S0.ScrollArea(axis: .horizontal, showsIndicators: false) {
+    HStack(spacing: 12) {
+        ForEach(images) { img in
+            Image(img.name)
+        }
+    }
+}`,
+    ],
+    props: [
+      { name: "axis", type: "ScrollAreaAxis", default: ".vertical", description: "Scroll direction: .vertical, .horizontal, .both." },
+      { name: "showsIndicators", type: "Bool", default: "true", description: "Whether to show scroll indicators." },
+      { name: "maxHeight", type: "CGFloat?", default: "nil", description: "Optional maximum height for the scroll area." },
+    ],
+  },
 ]
 
 export function getComponentBySlug(slug: string): ComponentDoc | undefined {

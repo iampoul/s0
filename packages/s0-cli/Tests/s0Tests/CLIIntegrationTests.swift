@@ -283,7 +283,7 @@ final class CLIIntegrationTests: XCTestCase {
         let result = try run(["list", "-r", registryDir.path])
         
         XCTAssertEqual(result.exitCode, 0)
-        XCTAssertTrue(result.stdout.contains("Available components (24)"))
+        XCTAssertTrue(result.stdout.contains("Available components (32)"))
         XCTAssertTrue(result.stdout.contains("button"))
         XCTAssertTrue(result.stdout.contains("card"))
         XCTAssertTrue(result.stdout.contains("input"))

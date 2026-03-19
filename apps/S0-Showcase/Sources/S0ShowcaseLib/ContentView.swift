@@ -13,6 +13,10 @@ public struct ContentView: View {
     @State private var selectedTab = 0
     @State private var showSheet = false
     @State private var showToast = false
+    @State private var searchText = ""
+    @State private var selectedDate = Date()
+    @State private var segmentSelection = 0
+    @State private var showDialog = false
     
     public init() {}
     
@@ -334,10 +338,173 @@ public struct ContentView: View {
                         .cornerRadius(S0.Theme.Radius.lg)
                         .padding(.horizontal)
                     }
+
+                    // Search Bar Section
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Search Bar")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+
+                        VStack(spacing: S0.Theme.Spacing.md) {
+                            S0.SearchBar(text: $searchText, placeholder: "Search components...")
+                        }
+                        .padding(S0.Theme.Spacing.lg)
+                        .background(S0.Theme.Colors.secondaryBackground)
+                        .cornerRadius(S0.Theme.Radius.lg)
+                        .padding(.horizontal)
+                    }
+
+                    // Segmented Control Section
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Segmented Control")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+
+                        VStack(spacing: S0.Theme.Spacing.md) {
+                            S0.SegmentedControl(
+                                selection: $segmentSelection,
+                                options: [
+                                    (value: 0, label: "All"),
+                                    (value: 1, label: "Active"),
+                                    (value: 2, label: "Archived")
+                                ]
+                            )
+                        }
+                        .padding(S0.Theme.Spacing.lg)
+                        .background(S0.Theme.Colors.secondaryBackground)
+                        .cornerRadius(S0.Theme.Radius.lg)
+                        .padding(.horizontal)
+                    }
+
+                    // Date Picker Section
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Date Picker")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+
+                        VStack(spacing: S0.Theme.Spacing.md) {
+                            S0.DatePicker("Select date", selection: $selectedDate, variant: .compact)
+                        }
+                        .padding(S0.Theme.Spacing.lg)
+                        .background(S0.Theme.Colors.secondaryBackground)
+                        .cornerRadius(S0.Theme.Radius.lg)
+                        .padding(.horizontal)
+                    }
+
+                    // Navigation Bar Section
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Navigation Bar")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+
+                        S0.NavigationBar(
+                            title: "Messages",
+                            subtitle: "3 unread"
+                        ) {
+                            S0.Button("Back", variant: .ghost, size: .sm) {}
+                        } trailing: {
+                            S0.Button("Edit", variant: .ghost, size: .sm) {}
+                        }
+                        .cornerRadius(S0.Theme.Radius.lg)
+                        .padding(.horizontal)
+                    }
+
+                    // Dialog Section
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Dialog")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+
+                        VStack(spacing: S0.Theme.Spacing.md) {
+                            S0.Button("Show Dialog") {
+                                showDialog = true
+                            }
+                        }
+                        .padding(S0.Theme.Spacing.lg)
+                        .background(S0.Theme.Colors.secondaryBackground)
+                        .cornerRadius(S0.Theme.Radius.lg)
+                        .padding(.horizontal)
+                    }
+
+                    // Table Section
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Table")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+
+                        S0.Table(
+                            columns: [
+                                S0.TableColumn(id: "name", title: "Name"),
+                                S0.TableColumn(id: "status", title: "Status"),
+                                S0.TableColumn(id: "role", title: "Role", alignment: .trailing)
+                            ],
+                            rows: sampleTableRows,
+                            valueProvider: { row, col in
+                                switch col {
+                                case "name": return row.name
+                                case "status": return row.status
+                                case "role": return row.role
+                                default: return ""
+                                }
+                            }
+                        )
+                        .padding(.horizontal)
+                    }
+
+                    // Scroll Area Section
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Scroll Area")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+
+                        S0.ScrollArea(maxHeight: 150) {
+                            VStack(alignment: .leading, spacing: S0.Theme.Spacing.sm) {
+                                ForEach(1..<20) { i in
+                                    Text("Item \(i)")
+                                        .font(S0.Theme.Typography.body)
+                                        .padding(.horizontal, S0.Theme.Spacing.md)
+                                        .padding(.vertical, S0.Theme.Spacing.xs)
+                                }
+                            }
+                            .padding(.vertical, S0.Theme.Spacing.sm)
+                        }
+                        .padding(.horizontal)
+                    }
+
+                    // Tooltip Section
+                    VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
+                        Text("Tooltip")
+                            .font(S0.Theme.Typography.headline)
+                            .padding(.horizontal)
+
+                        VStack(spacing: S0.Theme.Spacing.md) {
+                            S0.Button("Hover me", variant: .outline) {}
+                                .s0Tooltip("This is a tooltip")
+                        }
+                        .padding(S0.Theme.Spacing.lg)
+                        .padding(.top, S0.Theme.Spacing.xl)
+                        .background(S0.Theme.Colors.secondaryBackground)
+                        .cornerRadius(S0.Theme.Radius.lg)
+                        .padding(.horizontal)
+                    }
                 }
                 .padding(.vertical)
             }
             .navigationTitle("S0 Components")
+            .s0Dialog(
+                isPresented: $showDialog,
+                title: "Are you sure?",
+                description: "This action cannot be undone."
+            ) {
+                S0.DialogActions {
+                    S0.Button("Cancel", variant: .outline, size: .sm) {
+                        showDialog = false
+                    }
+                    S0.Button("Confirm", variant: .destructive, size: .sm) {
+                        showDialog = false
+                    }
+                }
+            }
             .s0Sheet(isPresented: $showSheet) {
                 VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
                     Text("Sheet Content")
@@ -356,6 +523,22 @@ public struct ContentView: View {
         }
     }
 }
+
+// MARK: - Sample Data
+
+private struct SampleRow: Identifiable {
+    let id = UUID()
+    let name: String
+    let status: String
+    let role: String
+}
+
+private let sampleTableRows = [
+    SampleRow(name: "Alice", status: "Active", role: "Admin"),
+    SampleRow(name: "Bob", status: "Inactive", role: "Editor"),
+    SampleRow(name: "Charlie", status: "Active", role: "Viewer"),
+    SampleRow(name: "Diana", status: "Active", role: "Editor"),
+]
 
 #Preview {
     ContentView()

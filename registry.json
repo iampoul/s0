@@ -246,6 +246,86 @@
       ],
       "dependencies": [],
       "version": "1.0.0"
+    },
+    {
+      "name": "table",
+      "category": "layout",
+      "description": "Data table with sortable columns and rows.",
+      "files": [
+        "registry/ui/Table.swift"
+      ],
+      "dependencies": ["separator"],
+      "version": "1.0.0"
+    },
+    {
+      "name": "search-bar",
+      "category": "forms",
+      "description": "Styled search input with clear button and submit action.",
+      "files": [
+        "registry/ui/SearchBar.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
+    },
+    {
+      "name": "dialog",
+      "category": "layout",
+      "description": "Modal dialog with title, description, and action buttons.",
+      "files": [
+        "registry/ui/Dialog.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
+    },
+    {
+      "name": "date-picker",
+      "category": "forms",
+      "description": "Styled date and time picker with graphical and compact variants.",
+      "files": [
+        "registry/ui/DatePicker.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
+    },
+    {
+      "name": "navigation-bar",
+      "category": "layout",
+      "description": "Custom navigation header with title, subtitle, and action slots.",
+      "files": [
+        "registry/ui/NavigationBar.swift"
+      ],
+      "dependencies": ["separator"],
+      "version": "1.0.0"
+    },
+    {
+      "name": "segmented-control",
+      "category": "forms",
+      "description": "Horizontal segment picker for switching between options.",
+      "files": [
+        "registry/ui/SegmentedControl.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
+    },
+    {
+      "name": "tooltip",
+      "category": "layout",
+      "description": "Floating hint on hover or long-press.",
+      "files": [
+        "registry/ui/Tooltip.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
+    },
+    {
+      "name": "scroll-area",
+      "category": "layout",
+      "description": "Styled scrollable container with configurable axes.",
+      "files": [
+        "registry/ui/ScrollArea.swift"
+      ],
+      "dependencies": [],
+      "version": "1.0.0"
     }
   ]
 }
