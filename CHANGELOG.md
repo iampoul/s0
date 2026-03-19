@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/iampoul/s0/compare/v0.3.1...v0.4.0) (2026-03-19)
+
+
+### Features
+
+* add theme presets with 15 built-in themes ([f66623b](https://github.com/iampoul/s0/commit/f66623b96d7bdc40c545b79b67bbda9db3a1e33b))
+* add themes page to web app with visual previews ([bc8b144](https://github.com/iampoul/s0/commit/bc8b144da6ad86adfdd0b5a8e52d4d2f3ee4db15))
+
 ## [0.3.1](https://github.com/iampoul/s0/compare/v0.3.0...v0.3.1) (2026-03-19)
 
 
