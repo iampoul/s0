@@ -1,6 +1,8 @@
 import fs from "fs"
 import path from "path"
 import type { Metadata } from "next"
+import { Navbar } from "@/components/landing/navbar"
+import { Footer } from "@/components/landing/footer"
 
 export const metadata: Metadata = {
   title: "Changelog — S0",
@@ -53,7 +55,8 @@ export default function ChangelogPage() {
   const releases = parseChangelog(content)
 
   return (
-    <div className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background text-foreground">
+      <Navbar />
       <div className="mx-auto max-w-3xl px-6 pt-32 pb-20">
         <h1 className="font-sans text-4xl font-bold tracking-tight text-foreground mb-2">
           Changelog
@@ -99,6 +102,7 @@ export default function ChangelogPage() {
           <p className="text-muted-foreground text-center py-12">No releases yet.</p>
         )}
       </div>
-    </div>
+      <Footer />
+    </main>
   )
 }
