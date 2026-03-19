@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/iampoul/s0/compare/v0.4.0...v0.5.0) (2026-03-19)
+
+
+### Features
+
+* add component screenshot previews to docs ([6ff58fa](https://github.com/iampoul/s0/commit/6ff58fa2338366b44dad0dd74e35092f196f1046))
+
 ## [0.4.0](https://github.com/iampoul/s0/compare/v0.3.1...v0.4.0) (2026-03-19)
 
 
