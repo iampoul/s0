@@ -132,6 +132,21 @@ Use **Conventional Commits** — Release Please auto-generates changelogs and ve
 
 Always use lowercase, no period at end. Body/footer optional.
 
+## Branching & Workflow
+
+**Never push directly to `main`.** The `main` branch is protected with rulesets.
+
+1. Create a feature branch: `git checkout -b feat/my-feature`
+2. Commit with conventional commits
+3. Push and open a PR to `main`
+4. CI must pass before merging
+5. Merge the PR → Release Please picks up the commits
+
+This gives us:
+- **Rollback** — revert any PR with one click
+- **CI gate** — broken code never reaches main
+- **Clean history** — each feature is a discrete, revertable unit
+
 ## CLI
 
 The CLI (`packages/s0-cli`) uses Swift Argument Parser. Commands:
@@ -160,24 +175,26 @@ let s0Version = "0.1.0" // x-release-please-version
 
 The release process is fully automated:
 
-1. **Commit** to `main` using conventional commits (`feat:`, `fix:`, etc.)
-2. **Release Please** (`release-please.yml`) runs on every push to `main` and creates/updates a release PR with:
-   - Version bump in `main.swift` and `package.json`
+1. **Branch** — work on a feature branch, open a PR to `main`
+2. **CI** — runs on the PR, must pass before merge
+3. **Merge** — merge the PR using conventional commit messages
+4. **Release Please** (`release-please.yml`) runs on every push to `main` and creates/updates a release PR with:
+   - Version bump in `S0CLI.swift` and `version.txt`
    - Auto-generated `CHANGELOG.md`
-3. **Merge** the release PR → Release Please tags the commit (e.g., `v0.2.0`)
-4. **Release workflow** (`release.yml`) triggers on the tag and:
+5. **Merge the release PR** → Release Please tags the commit (e.g., `v0.4.0`)
+6. **Build job** chains automatically (same workflow) and:
    - Builds a universal macOS binary (arm64 + x86_64)
    - Creates a GitHub Release with the binary attached
-   - Updates the Homebrew formula in `iampoul/homebrew-s0` (requires `HOMEBREW_TAP_TOKEN` secret)
+   - Updates the Homebrew formula in `iampoul/homebrew-s0`
 
 ### Key Files
 
 | File | Purpose |
 |------|---------|
-| `release-please-config.json` | Release Please config (extra-files for version sync) |
+| `release-please-config.json` | Release Please config (scoped to CLI/registry) |
 | `.release-please-manifest.json` | Tracks current version (auto-updated) |
-| `.github/workflows/release-please.yml` | Creates release PRs |
-| `.github/workflows/release.yml` | Builds binary + publishes on tag push |
+| `version.txt` | Single source of truth for version number |
+| `.github/workflows/release-please.yml` | Creates release PRs + builds binary + updates Homebrew |
 
 ### Homebrew Distribution
 
