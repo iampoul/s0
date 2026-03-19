@@ -18,6 +18,7 @@ export function Footer() {
             { label: "Components", href: "/docs/components" },
             { label: "Documentation", href: "/docs" },
             { label: "Getting Started", href: "/docs/getting-started" },
+            { label: "Changelog", href: "/changelog" },
             { label: "GitHub", href: "https://github.com/iampoul/s0" },
           ].map(({ label, href }) => (
             <a
