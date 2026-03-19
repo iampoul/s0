@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/iampoul/s0/compare/v0.2.2...v0.3.0) (2026-03-19)
+
+
+### Features
+
+* show CLI version in doctor output ([f6924a3](https://github.com/iampoul/s0/commit/f6924a32af572d9bf412fc9e21a3788dce6a3bc8))
+
+
+### Bug Fixes
+
+* fix Homebrew tap update and docs install command ([2f59de3](https://github.com/iampoul/s0/commit/2f59de3a0ba1d622f35c974f6a4cdc14b7f807ad))
+* use job-level env for secret check in workflow ([f936885](https://github.com/iampoul/s0/commit/f936885fa8cab042b810dfe9c19bf51af950cd7b))
+
 ## [0.2.2](https://github.com/iampoul/s0/compare/v0.2.1...v0.2.2) (2026-03-19)
 
 
