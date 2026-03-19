@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import Image from "next/image"
-import fs from "fs"
 import { components, getComponentBySlug, categories } from "@/lib/docs-data"
 
 export function generateStaticParams() {
@@ -51,23 +49,6 @@ export default async function ComponentPage({
       <p className="text-xs font-mono text-muted-foreground mb-8">
         <code className="bg-muted px-1.5 py-0.5 rounded-sm">s0 add {component.slug}</code>
       </p>
-
-      {/* Preview */}
-      {fs.existsSync(`public/screenshots/${component.slug}.png`) && (
-        <section className="mb-10">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          <div className="border border-border rounded-sm overflow-hidden bg-muted/20">
-            <Image
-              src={`/screenshots/${component.slug}.png`}
-              alt={`${component.name} component preview`}
-              width={800}
-              height={400}
-              className="w-full h-auto"
-              priority
-            />
-          </div>
-        </section>
-      )}
 
       {/* Usage */}
       <section className="mb-10">
