@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ComponentShowcase } from '@/components/landing/component-showcase'
+import { components } from '@/lib/docs-data'
 
 // Mock next/link to render as plain anchor
 vi.mock('next/link', () => ({
@@ -11,6 +12,11 @@ vi.mock('next/link', () => ({
 }))
 
 afterEach(cleanup)
+
+const totalCount = components.length
+const primitivesCount = components.filter((c) => c.category === 'primitives').length
+const formsCount = components.filter((c) => c.category === 'forms').length
+const layoutCount = components.filter((c) => c.category === 'layout').length
 
 function getComponentLinks(container: HTMLElement) {
   return Array.from(
@@ -23,14 +29,14 @@ function getFilterButton(name: string) {
 }
 
 describe('ComponentShowcase', () => {
-  it('renders all 24 components by default', () => {
+  it('renders all components by default', () => {
     const { container } = render(<ComponentShowcase />)
-    expect(getComponentLinks(container).length).toBe(24)
+    expect(getComponentLinks(container).length).toBe(totalCount)
   })
 
   it('renders heading with correct count', () => {
     render(<ComponentShowcase />)
-    expect(screen.getAllByText('24 components, ready to use.').length).toBeGreaterThan(0)
+    expect(screen.getAllByText(`${totalCount} components, ready to use.`).length).toBeGreaterThan(0)
   })
 
   it('renders category filter buttons', () => {
@@ -50,7 +56,7 @@ describe('ComponentShowcase', () => {
     await user.click(primitivesBtn)
 
     const links = getComponentLinks(container)
-    expect(links.length).toBe(8)
+    expect(links.length).toBe(primitivesCount)
     expect(container.querySelector('a[href="/docs/components/button"]')).toBeTruthy()
     expect(container.querySelector('a[href="/docs/components/badge"]')).toBeTruthy()
   })
@@ -62,7 +68,7 @@ describe('ComponentShowcase', () => {
     await user.click(formsBtn)
 
     const links = getComponentLinks(container)
-    expect(links.length).toBe(8)
+    expect(links.length).toBe(formsCount)
     expect(container.querySelector('a[href="/docs/components/input"]')).toBeTruthy()
     expect(container.querySelector('a[href="/docs/components/checkbox"]')).toBeTruthy()
   })
@@ -74,7 +80,7 @@ describe('ComponentShowcase', () => {
     await user.click(layoutBtn)
 
     const links = getComponentLinks(container)
-    expect(links.length).toBe(8)
+    expect(links.length).toBe(layoutCount)
     expect(container.querySelector('a[href="/docs/components/card"]')).toBeTruthy()
     expect(container.querySelector('a[href="/docs/components/tabs"]')).toBeTruthy()
   })
@@ -89,7 +95,7 @@ describe('ComponentShowcase', () => {
     await user.click(formsBtn)
     await user.click(allBtn)
 
-    expect(getComponentLinks(container).length).toBe(24)
+    expect(getComponentLinks(container).length).toBe(totalCount)
   })
 
   it('component links point to docs pages', () => {

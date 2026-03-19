@@ -1,6 +1,7 @@
 import { ArrowRight, Terminal } from "lucide-react"
 import fs from "fs"
 import path from "path"
+import { components } from "@/lib/docs-data"
 
 function getVersion() {
   try {
@@ -12,6 +13,7 @@ function getVersion() {
 
 export function Hero() {
   const version = getVersion()
+  const componentCount = components.length
 
   return (
     <section className="relative pt-32 pb-20 px-6 overflow-hidden">
@@ -69,7 +71,7 @@ export function Hero() {
         {/* Stats row */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12">
           {[
-            { value: "32", label: "Components" },
+            { value: String(componentCount), label: "Components" },
             { value: "iOS 17+", label: "& macOS 14+" },
             { value: "MIT", label: "Open Source" },
             { value: "0 deps", label: "Native only" },
