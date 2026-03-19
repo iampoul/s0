@@ -91,26 +91,7 @@ jobs:
           git clone https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/iampoul/homebrew-s0.git /tmp/homebrew-s0
           mkdir -p /tmp/homebrew-s0/Formula
 
-          cat > /tmp/homebrew-s0/Formula/s0.rb <<FORMULA
-class S0 < Formula
-  desc "A code-first SwiftUI component kit for Apple platforms"
-  homepage "https://github.com/iampoul/s0"
-  url "${URL}"
-  sha256 "${SHA256}"
-  version "${VERSION}"
-  license "MIT"
-
-  depends_on :macos
-
-  def install
-    bin.install "s0"
-  end
-
-  test do
-    assert_match "${VERSION}", shell_output("\#{bin}/s0 --version")
-  end
-end
-FORMULA
+          printf 'class S0 < Formula\n  desc "A code-first SwiftUI component kit for Apple platforms"\n  homepage "https://github.com/iampoul/s0"\n  url "%s"\n  sha256 "%s"\n  version "%s"\n  license "MIT"\n\n  depends_on :macos\n\n  def install\n    bin.install "s0"\n  end\n\n  test do\n    assert_match "%s", shell_output("#{bin}/s0 --version")\n  end\nend\n' "$URL" "$SHA256" "$VERSION" "$VERSION" > /tmp/homebrew-s0/Formula/s0.rb
 
           cd /tmp/homebrew-s0
           git config user.name "github-actions[bot]"
