@@ -16,10 +16,12 @@ function parseChangelog(markdown: string) {
   let currentSection: { title: string; items: string[] } | null = null
 
   for (const line of lines) {
-    // ## [0.2.0](url) — date
-    const releaseMatch = line.match(/^## \[(.+?)\]\((.+?)\)\s*[—–-]\s*(.+)/)
+    // Release Please format: ## [0.5.0](url) (2026-03-19)
+    // Manual format: ## [0.1.0](url) — 2026-03-18
+    const releaseMatch = line.match(/^## \[(.+?)\]\((.+?)\)\s*(?:[—–-]\s*|\()(.+?)\)?$/)
     if (releaseMatch) {
-      currentRelease = { version: releaseMatch[1], url: releaseMatch[2], date: releaseMatch[3].trim(), sections: [] }
+      const date = releaseMatch[3].trim()
+      currentRelease = { version: releaseMatch[1], url: releaseMatch[2], date, sections: [] }
       releases.push(currentRelease)
       currentSection = null
       continue
@@ -33,14 +35,26 @@ function parseChangelog(markdown: string) {
       continue
     }
 
-    // * Item
+    // * item text ([commit](url)) — strip the commit link for cleaner display
     const itemMatch = line.match(/^\* (.+)/)
     if (itemMatch && currentSection) {
-      currentSection.items.push(itemMatch[1])
+      const text = itemMatch[1]
+        .replace(/\s*\(\[[a-f0-9]+\]\([^)]+\)\)\s*$/, "") // strip trailing commit link
+        .replace(/\*\*/g, "") // strip bold markers
+      currentSection.items.push(text)
     }
   }
 
   return releases
+}
+
+function formatDate(dateStr: string): string {
+  try {
+    const date = new Date(dateStr + "T00:00:00")
+    return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+  } catch {
+    return dateStr
+  }
 }
 
 export default function ChangelogPage() {
@@ -76,7 +90,7 @@ export default function ChangelogPage() {
                 >
                   v{release.version}
                 </a>
-                <span className="text-sm text-muted-foreground">{release.date}</span>
+                <span className="text-sm text-muted-foreground">{formatDate(release.date)}</span>
               </div>
 
               {release.sections.map((section) => (
