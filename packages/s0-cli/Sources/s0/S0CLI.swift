@@ -91,6 +91,68 @@ struct Registry: Codable {
     }
 }
 
+// MARK: - Theme Model
+
+struct ThemeColors: Codable {
+    let background: String
+    let foreground: String
+    let card: String
+    let cardForeground: String
+    let primary: String
+    let primaryForeground: String
+    let secondary: String
+    let secondaryForeground: String
+    let secondaryBackground: String
+    let muted: String
+    let mutedForeground: String
+    let border: String
+    let destructive: String
+    let destructiveForeground: String
+    let success: String
+    let successForeground: String
+    let warning: String
+    let warningForeground: String
+}
+
+struct ThemeColorScheme: Codable {
+    let light: ThemeColors
+    let dark: ThemeColors
+}
+
+struct ThemeDefinition: Codable {
+    let name: String
+    let label: String
+    let description: String
+    let builtin: Bool?
+    let colors: ThemeColorScheme?
+}
+
+struct ThemesFile: Codable {
+    let themes: [ThemeDefinition]
+}
+
+func loadThemes(from source: RegistrySource) throws -> [ThemeDefinition] {
+    let data: Data
+    switch source {
+    case .local(let path):
+        let url = URL(fileURLWithPath: path).appendingPathComponent("registry/themes.json")
+        guard let d = try? Data(contentsOf: url) else {
+            print("Error: Could not find registry/themes.json at \(path)")
+            print("  Run this from the S0 repo root, or pass --registry-path.")
+            throw ExitCode.failure
+        }
+        data = d
+    case .remote(let baseURL):
+        let urlString = baseURL + "/registry/themes.json"
+        data = try fetchRemote(urlString: urlString, cacheKey: "registry_themes.json")
+    }
+    guard let themesFile = try? JSONDecoder().decode(ThemesFile.self, from: data) else {
+        print("Error: Could not parse registry/themes.json")
+        throw ExitCode.failure
+    }
+    return themesFile.themes
+}
+
 // MARK: - Remote Fetch & Cache
 
 func fetchRemote(urlString: String, cacheKey: String) throws -> Data {
@@ -192,7 +254,7 @@ struct S0CLI: ParsableCommand {
         commandName: "s0",
         abstract: "The S0 CLI — A toolkit for SwiftUI components.",
         version: s0Version,
-        subcommands: [Init.self, Add.self, Remove.self, Update.self, List.self, Doctor.self],
+        subcommands: [Init.self, Add.self, Remove.self, Update.self, List.self, Doctor.self, Themes.self],
         defaultSubcommand: Init.self
     )
 }
@@ -205,10 +267,17 @@ extension S0CLI {
             abstract: "Initialize S0 in your project."
         )
 
+        @Option(name: .shortAndLong, help: "Theme preset to use (run 's0 themes' to see options).")
+        var theme: String?
+
+        @Option(name: .shortAndLong, help: "Local path to the registry (omit to fetch from GitHub).")
+        var registryPath: String?
+
         func run() throws {
             let fileManager = FileManager.default
             let s0Path = resolveOutputPath()
             let stylesPath = s0Path + "/Styles"
+            let themeName = theme ?? "default"
 
             print("Creating S0 directory structure...")
 
@@ -217,13 +286,31 @@ extension S0CLI {
                 
                 let themePath = stylesPath + "/S0Theme.swift"
                 if !fileManager.fileExists(atPath: themePath) {
-                    try themeTemplate.write(toFile: themePath, atomically: true, encoding: .utf8)
-                    print("✓ Created \(themePath.replacingOccurrences(of: fileManager.currentDirectoryPath + "/", with: ""))")
+                    let content: String
+                    if themeName == "default" {
+                        content = themeTemplate
+                    } else {
+                        let source = RegistrySource.resolve(registryPath: registryPath)
+                        let themes = try loadThemes(from: source)
+                        guard let definition = themes.first(where: { $0.name == themeName }) else {
+                            print("Error: Theme '\(themeName)' not found. Run 's0 themes' to see available themes.")
+                            throw ExitCode.failure
+                        }
+                        guard let colors = definition.colors else {
+                            print("Error: Theme '\(themeName)' has no color definitions.")
+                            throw ExitCode.failure
+                        }
+                        content = generateThemeTemplate(colors: colors)
+                    }
+                    try content.write(toFile: themePath, atomically: true, encoding: .utf8)
+                    print("✓ Created \(themePath.replacingOccurrences(of: fileManager.currentDirectoryPath + "/", with: "")) (theme: \(themeName))")
                 } else {
                     print("! S0Theme.swift already exists, skipping.")
                 }
 
                 print("✓ S0 initialized successfully.")
+            } catch let error as ExitCode {
+                throw error
             } catch {
                 print("Error: Could not initialize S0: \(error)")
                 throw ExitCode.failure
@@ -548,6 +635,39 @@ extension S0CLI {
     }
 }
 
+// MARK: - Themes
+
+extension S0CLI {
+    struct Themes: ParsableCommand {
+        static var configuration = CommandConfiguration(
+            abstract: "List available theme presets."
+        )
+
+        @Option(name: .shortAndLong, help: "Local path to the registry (omit to fetch from GitHub).")
+        var registryPath: String?
+
+        func run() throws {
+            let source = RegistrySource.resolve(registryPath: registryPath)
+            let themes = try loadThemes(from: source)
+
+            if themes.isEmpty {
+                print("No themes found.")
+                return
+            }
+
+            print("Available themes:\n")
+
+            let maxNameLength = themes.map { $0.name.count }.max() ?? 0
+            for theme in themes {
+                let padding = String(repeating: " ", count: max(maxNameLength - theme.name.count + 2, 2))
+                print("  \(theme.name)\(padding)\(theme.description)")
+            }
+
+            print("\n  \(themes.count) themes available. Use 's0 init --theme <name>' to apply.")
+        }
+    }
+}
+
 // MARK: - Theme Template
 
 private let themeTemplate = """
@@ -675,3 +795,148 @@ extension View {
     }
 }
 """
+
+// MARK: - Hex Theme Template Generator
+
+private func generateThemeTemplate(colors: ThemeColorScheme) -> String {
+    let l = colors.light
+    let d = colors.dark
+    return """
+import SwiftUI
+
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
+
+// The Namespace
+public enum S0 {
+    
+    // MARK: - Design Tokens
+    
+    public struct Theme {
+        
+        // MARK: Radius
+        
+        public struct Radius {
+            public static let sm: CGFloat = 4
+            public static let md: CGFloat = 8
+            public static let lg: CGFloat = 12
+            public static let xl: CGFloat = 16
+            public static let full: CGFloat = 9999
+        }
+        
+        /// Default corner radius used by components
+        public static let radius: CGFloat = Radius.md
+        
+        // MARK: Spacing
+        
+        public struct Spacing {
+            public static let xxs: CGFloat = 2
+            public static let xs: CGFloat = 4
+            public static let sm: CGFloat = 8
+            public static let md: CGFloat = 12
+            public static let lg: CGFloat = 16
+            public static let xl: CGFloat = 24
+            public static let xxl: CGFloat = 32
+        }
+        
+        // MARK: Colors
+        
+        public struct Colors {
+            public static let primary = Color.s0Adaptive(light: 0x\(l.primary), dark: 0x\(d.primary))
+            public static let primaryForeground = Color.s0Adaptive(light: 0x\(l.primaryForeground), dark: 0x\(d.primaryForeground))
+            public static let secondary = Color.s0Adaptive(light: 0x\(l.secondary), dark: 0x\(d.secondary))
+            public static let secondaryForeground = Color.s0Adaptive(light: 0x\(l.secondaryForeground), dark: 0x\(d.secondaryForeground))
+            public static let secondaryBackground = Color.s0Adaptive(light: 0x\(l.secondaryBackground), dark: 0x\(d.secondaryBackground))
+            public static let muted = Color.s0Adaptive(light: 0x\(l.muted), dark: 0x\(d.muted))
+            public static let mutedForeground = Color.s0Adaptive(light: 0x\(l.mutedForeground), dark: 0x\(d.mutedForeground))
+            public static let border = Color.s0Adaptive(light: 0x\(l.border), dark: 0x\(d.border))
+            public static let background = Color.s0Adaptive(light: 0x\(l.background), dark: 0x\(d.background))
+            public static let foreground = Color.s0Adaptive(light: 0x\(l.foreground), dark: 0x\(d.foreground))
+            public static let card = Color.s0Adaptive(light: 0x\(l.card), dark: 0x\(d.card))
+            public static let cardForeground = Color.s0Adaptive(light: 0x\(l.cardForeground), dark: 0x\(d.cardForeground))
+            public static let destructive = Color.s0Adaptive(light: 0x\(l.destructive), dark: 0x\(d.destructive))
+            public static let destructiveForeground = Color.s0Adaptive(light: 0x\(l.destructiveForeground), dark: 0x\(d.destructiveForeground))
+            public static let success = Color.s0Adaptive(light: 0x\(l.success), dark: 0x\(d.success))
+            public static let successForeground = Color.s0Adaptive(light: 0x\(l.successForeground), dark: 0x\(d.successForeground))
+            public static let warning = Color.s0Adaptive(light: 0x\(l.warning), dark: 0x\(d.warning))
+            public static let warningForeground = Color.s0Adaptive(light: 0x\(l.warningForeground), dark: 0x\(d.warningForeground))
+        }
+        
+        // MARK: Typography
+        
+        public struct Typography {
+            public static let largeTitle = Font.system(size: 34, weight: .bold)
+            public static let title = Font.system(size: 22, weight: .bold)
+            public static let headline = Font.system(size: 17, weight: .semibold)
+            public static let body = Font.system(size: 17, weight: .regular)
+            public static let callout = Font.system(size: 16, weight: .regular)
+            public static let subheadline = Font.system(size: 15, weight: .regular)
+            public static let footnote = Font.system(size: 13, weight: .regular)
+            public static let caption = Font.system(size: 12, weight: .regular)
+            public static let button = Font.system(size: 14, weight: .medium)
+        }
+        
+        // MARK: Shadows
+        
+        public struct Shadow {
+            public let color: Color
+            public let radius: CGFloat
+            public let x: CGFloat
+            public let y: CGFloat
+            
+            public static let sm = Shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+            public static let md = Shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 3)
+            public static let lg = Shadow(color: .black.opacity(0.15), radius: 15, x: 0, y: 8)
+        }
+        
+        // MARK: Animation
+        
+        public struct Animation {
+            public static let fast: SwiftUI.Animation = .easeOut(duration: 0.1)
+            public static let `default`: SwiftUI.Animation = .easeOut(duration: 0.2)
+            public static let slow: SwiftUI.Animation = .easeInOut(duration: 0.35)
+            public static let spring: SwiftUI.Animation = .spring(response: 0.35, dampingFraction: 0.7)
+        }
+    }
+}
+
+// MARK: - Shadow View Modifier
+
+extension View {
+    public func s0Shadow(_ shadow: S0.Theme.Shadow) -> some View {
+        self.shadow(color: shadow.color, radius: shadow.radius, x: shadow.x, y: shadow.y)
+    }
+}
+
+// MARK: - Adaptive Color Helper
+
+extension Color {
+    static func s0Adaptive(light: UInt, dark: UInt) -> Color {
+        #if canImport(UIKit)
+        return Color(uiColor: UIColor { traits in
+            let hex = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(
+                red: CGFloat((hex >> 16) & 0xFF) / 255.0,
+                green: CGFloat((hex >> 8) & 0xFF) / 255.0,
+                blue: CGFloat(hex & 0xFF) / 255.0,
+                alpha: 1.0
+            )
+        })
+        #elseif canImport(AppKit)
+        return Color(nsColor: NSColor(name: nil) { appearance in
+            let hex = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? dark : light
+            return NSColor(
+                red: CGFloat((hex >> 16) & 0xFF) / 255.0,
+                green: CGFloat((hex >> 8) & 0xFF) / 255.0,
+                blue: CGFloat(hex & 0xFF) / 255.0,
+                alpha: 1.0
+            )
+        })
+        #endif
+    }
+}
+"""
+}

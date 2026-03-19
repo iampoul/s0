@@ -469,4 +469,98 @@ final class CLIIntegrationTests: XCTestCase {
         
         XCTAssertTrue(result.stdout.contains("Registry: local"), "s0.json registryPath should override remote default")
     }
+    
+    // MARK: - Themes
+    
+    func testThemesListsAllPresets() throws {
+        let result = try run(["themes", "--registry-path", registryDir.path])
+        
+        XCTAssertEqual(result.exitCode, 0)
+        XCTAssertTrue(result.stdout.contains("Available themes:"))
+        XCTAssertTrue(result.stdout.contains("default"))
+        XCTAssertTrue(result.stdout.contains("zinc"))
+        XCTAssertTrue(result.stdout.contains("tokyo-night"))
+        XCTAssertTrue(result.stdout.contains("synthwave"))
+        XCTAssertTrue(result.stdout.contains("15 themes available"))
+    }
+    
+    func testThemesShowsUsageHint() throws {
+        let result = try run(["themes", "--registry-path", registryDir.path])
+        
+        XCTAssertTrue(result.stdout.contains("s0 init --theme"))
+    }
+    
+    func testInitDefaultThemeUsesSystemColors() throws {
+        let result = try run(["init"])
+        
+        XCTAssertEqual(result.exitCode, 0)
+        let themePath = tmpDir.appendingPathComponent("S0/Styles/S0Theme.swift")
+        let content = try String(contentsOf: themePath, encoding: .utf8)
+        XCTAssertTrue(content.contains("Color.primary"), "Default theme should use system colors")
+        XCTAssertFalse(content.contains("s0Adaptive"), "Default theme should not use adaptive hex helper")
+    }
+    
+    func testInitWithNamedTheme() throws {
+        let result = try run(["init", "--theme", "synthwave", "--registry-path", registryDir.path])
+        
+        XCTAssertEqual(result.exitCode, 0)
+        XCTAssertTrue(result.stdout.contains("theme: synthwave"))
+        
+        let themePath = tmpDir.appendingPathComponent("S0/Styles/S0Theme.swift")
+        let content = try String(contentsOf: themePath, encoding: .utf8)
+        XCTAssertTrue(content.contains("s0Adaptive"), "Named theme should use adaptive hex colors")
+        XCTAssertTrue(content.contains("0xFF2975"), "Synthwave should contain its primary color")
+        XCTAssertFalse(content.contains("Color.primary"), "Named theme should not use system Color.primary")
+    }
+    
+    func testInitWithDefaultThemeFlag() throws {
+        let result = try run(["init", "--theme", "default", "--registry-path", registryDir.path])
+        
+        XCTAssertEqual(result.exitCode, 0)
+        let themePath = tmpDir.appendingPathComponent("S0/Styles/S0Theme.swift")
+        let content = try String(contentsOf: themePath, encoding: .utf8)
+        XCTAssertTrue(content.contains("Color.primary"), "Explicit --theme default should use system colors")
+    }
+    
+    func testInitWithInvalidTheme() throws {
+        let result = try run(["init", "--theme", "nonexistent", "--registry-path", registryDir.path])
+        
+        XCTAssertNotEqual(result.exitCode, 0)
+        XCTAssertTrue(result.stdout.contains("not found") || result.stderr.contains("not found"),
+                       "Should show error for invalid theme")
+    }
+    
+    func testInitThemeGeneratesValidSwift() throws {
+        // Test that each theme generates a file with all required tokens
+        let themes = ["zinc", "slate", "rose", "blue", "nord", "dracula", "arcade"]
+        
+        for theme in themes {
+            let dir = tmpDir.appendingPathComponent("project-\(theme)")
+            try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            
+            let result = try run(["init", "--theme", theme, "--registry-path", registryDir.path], workDir: dir)
+            XCTAssertEqual(result.exitCode, 0, "Theme \(theme) should init successfully")
+            
+            let content = try String(contentsOf: dir.appendingPathComponent("S0/Styles/S0Theme.swift"), encoding: .utf8)
+            
+            // Verify all color tokens are present
+            for token in ["primary", "primaryForeground", "secondary", "background", "foreground",
+                          "card", "border", "destructive", "success", "warning", "muted"] {
+                XCTAssertTrue(content.contains("let \(token)"), "Theme \(theme) should define \(token)")
+            }
+            
+            // Verify non-color tokens are present
+            XCTAssertTrue(content.contains("struct Radius"), "Theme \(theme) should have Radius")
+            XCTAssertTrue(content.contains("struct Spacing"), "Theme \(theme) should have Spacing")
+            XCTAssertTrue(content.contains("struct Typography"), "Theme \(theme) should have Typography")
+            XCTAssertTrue(content.contains("struct Shadow"), "Theme \(theme) should have Shadow")
+            XCTAssertTrue(content.contains("s0Shadow"), "Theme \(theme) should have s0Shadow modifier")
+        }
+    }
+    
+    func testHelpShowsThemesCommand() throws {
+        let result = try run(["--help"])
+        
+        XCTAssertTrue(result.stdout.contains("themes"), "Help should list themes subcommand")
+    }
 }

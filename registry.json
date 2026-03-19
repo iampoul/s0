@@ -254,7 +254,9 @@
       "files": [
         "registry/ui/Table.swift"
       ],
-      "dependencies": ["separator"],
+      "dependencies": [
+        "separator"
+      ],
       "version": "1.0.0"
     },
     {
@@ -294,7 +296,9 @@
       "files": [
         "registry/ui/NavigationBar.swift"
       ],
-      "dependencies": ["separator"],
+      "dependencies": [
+        "separator"
+      ],
       "version": "1.0.0"
     },
     {
@@ -327,5 +331,6 @@
       "dependencies": [],
       "version": "1.0.0"
     }
-  ]
+  ],
+  "themes": "registry/themes.json"
 }
