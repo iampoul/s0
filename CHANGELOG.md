@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/iampoul/s0/compare/v0.3.0...v0.3.1) (2026-03-19)
+
+
+### Bug Fixes
+
+* add production environment to build job for secret access ([35274de](https://github.com/iampoul/s0/commit/35274dee5345a8d08ac33e5dc2ab3625ae25b022))
+* use shell check for HOMEBREW_TAP_TOKEN instead of if condition ([a2ad8cc](https://github.com/iampoul/s0/commit/a2ad8cca96c0a8aa3a6b7a5e9b591880bbb1ba97))
+
 ## [0.3.0](https://github.com/iampoul/s0/compare/v0.2.2...v0.3.0) (2026-03-19)
 
 
