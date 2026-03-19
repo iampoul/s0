@@ -20,7 +20,7 @@
 ### Features
 
 * Initial release of S0 — a code-first SwiftUI component kit
-* 32 SwiftUI components across primitives, forms, and layout categories
+* 24 SwiftUI components across primitives, forms, and layout categories
 * Swift CLI with init, add, remove, update, list, and doctor commands
 * Remote registry with GitHub-hosted components and local caching
 * Next.js documentation and marketing website
