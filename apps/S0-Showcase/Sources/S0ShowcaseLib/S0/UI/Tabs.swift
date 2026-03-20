@@ -35,6 +35,7 @@ extension S0 {
         private let label: String
         private let isSelected: Bool
         private let action: () -> Void
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
         
         public init(_ label: String, isSelected: Bool, action: @escaping () -> Void) {
             self.label = label
@@ -51,9 +52,11 @@ extension S0 {
                     .padding(.vertical, S0.Theme.Spacing.sm)
                     .background(isSelected ? S0.Theme.Colors.background : Color.clear)
                     .cornerRadius(S0.Theme.Radius.sm)
-                    .animation(S0.Theme.Animation.fast, value: isSelected)
+                    .animation(reduceMotion ? nil : S0.Theme.Animation.fast, value: isSelected)
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(label)
+            .accessibilityValue(isSelected ? "Selected" : "")
         }
     }
     

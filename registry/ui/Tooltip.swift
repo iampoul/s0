@@ -11,6 +11,7 @@ extension S0 {
         private let message: String
         private let edge: TooltipEdge
         @State private var isVisible: Bool = false
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
         public init(
             _ message: String,
@@ -29,17 +30,17 @@ extension S0 {
                     }
                 }
                 .onHover { hovering in
-                    withAnimation(S0.Theme.Animation.fast) {
+                    withAnimation(reduceMotion ? nil : S0.Theme.Animation.fast) {
                         isVisible = hovering
                     }
                 }
                 #if os(iOS)
                 .onLongPressGesture(minimumDuration: 0.5) {
-                    withAnimation(S0.Theme.Animation.fast) {
+                    withAnimation(reduceMotion ? nil : S0.Theme.Animation.fast) {
                         isVisible = true
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        withAnimation(S0.Theme.Animation.fast) {
+                        withAnimation(reduceMotion ? nil : S0.Theme.Animation.fast) {
                             isVisible = false
                         }
                     }

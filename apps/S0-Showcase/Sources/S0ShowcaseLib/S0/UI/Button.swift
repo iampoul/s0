@@ -77,6 +77,7 @@ extension S0 {
 fileprivate struct S0ButtonStyle: ButtonStyle {
     let variant: S0.ButtonVariant
     let size: S0.ButtonSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -93,7 +94,8 @@ fileprivate struct S0ButtonStyle: ButtonStyle {
             )
             .opacity(configuration.isPressed ? 0.9 : 1.0)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(S0.Theme.Animation.fast, value: configuration.isPressed)
+            .animation(reduceMotion ? nil : S0.Theme.Animation.fast, value: configuration.isPressed)
+            .accessibilityAddTraits(.isButton)
     }
     
     private func backgroundColor(isPressed: Bool) -> Color {

@@ -31,6 +31,7 @@ extension S0 {
         private let message: String
         private let variant: ToastVariant
         @Binding private var isPresented: Bool
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
         
         public init(_ message: String, variant: ToastVariant = .default, isPresented: Binding<Bool>) {
             self.message = message
@@ -51,7 +52,7 @@ extension S0 {
                     Spacer()
                     
                     SwiftUI.Button {
-                        withAnimation(S0.Theme.Animation.default) {
+                        withAnimation(reduceMotion ? nil : S0.Theme.Animation.default) {
                             isPresented = false
                         }
                     } label: {
@@ -70,9 +71,10 @@ extension S0 {
                         .stroke(S0.Theme.Colors.border, lineWidth: 1)
                 )
                 .transition(.move(edge: .top).combined(with: .opacity))
+                .accessibilityLabel(message)
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        withAnimation(S0.Theme.Animation.default) {
+                        withAnimation(reduceMotion ? nil : S0.Theme.Animation.default) {
                             isPresented = false
                         }
                     }

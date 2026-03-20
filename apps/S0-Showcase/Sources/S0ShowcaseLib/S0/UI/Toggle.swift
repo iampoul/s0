@@ -20,6 +20,7 @@ extension S0 {
                 }
             }
             .tint(S0.Theme.Colors.primary)
+            .accessibilityLabel(label ?? "Toggle")
         }
     }
 }
