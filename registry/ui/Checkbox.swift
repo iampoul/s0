@@ -5,6 +5,7 @@ extension S0 {
     public struct Checkbox: View {
         private let label: String?
         @Binding private var isChecked: Bool
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
         
         public init(_ label: String? = nil, isChecked: Binding<Bool>) {
             self.label = label
@@ -27,11 +28,11 @@ extension S0 {
                                 .frame(width: 18, height: 18)
                             
                             Image(systemName: "checkmark")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.caption2.weight(.bold))
                                 .foregroundColor(S0.Theme.Colors.primaryForeground)
                         }
                     }
-                    .animation(S0.Theme.Animation.fast, value: isChecked)
+                    .animation(reduceMotion ? nil : S0.Theme.Animation.fast, value: isChecked)
                     
                     if let label = label {
                         Text(label)
@@ -41,6 +42,9 @@ extension S0 {
                 }
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(label ?? "Checkbox")
+            .accessibilityValue(isChecked ? "Checked" : "Unchecked")
+            .accessibilityAddTraits(.isButton)
         }
     }
 }

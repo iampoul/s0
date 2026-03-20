@@ -22,6 +22,7 @@ extension S0 {
                 
                 TextField(placeholder, text: $text)
                     .font(S0.Theme.Typography.button)
+                    .accessibilityLabel(label ?? placeholder)
                     .padding(.horizontal, S0.Theme.Spacing.md)
                     .padding(.vertical, 10)
                     .background(S0.Theme.Colors.background)

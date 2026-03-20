@@ -79,15 +79,15 @@ public enum S0 {
         // MARK: Typography
         
         public struct Typography {
-            public static let largeTitle = Font.system(size: 34, weight: .bold)
-            public static let title = Font.system(size: 22, weight: .bold)
-            public static let headline = Font.system(size: 17, weight: .semibold)
-            public static let body = Font.system(size: 17, weight: .regular)
-            public static let callout = Font.system(size: 16, weight: .regular)
-            public static let subheadline = Font.system(size: 15, weight: .regular)
-            public static let footnote = Font.system(size: 13, weight: .regular)
-            public static let caption = Font.system(size: 12, weight: .regular)
-            public static let button = Font.system(size: 14, weight: .medium)
+            public static let largeTitle = Font.largeTitle.weight(.bold)
+            public static let title = Font.title2.weight(.bold)
+            public static let headline = Font.headline
+            public static let body = Font.body
+            public static let callout = Font.callout
+            public static let subheadline = Font.subheadline
+            public static let footnote = Font.footnote
+            public static let caption = Font.caption
+            public static let button = Font.callout.weight(.medium)
         }
         
         // MARK: Shadows

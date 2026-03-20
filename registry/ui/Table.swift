@@ -40,7 +40,7 @@ extension S0 {
                                     .foregroundColor(S0.Theme.Colors.mutedForeground)
                                 if sortColumn == column.id {
                                     Image(systemName: sortAscending ? "chevron.up" : "chevron.down")
-                                        .font(.system(size: 10))
+                                        .font(.caption2)
                                         .foregroundColor(S0.Theme.Colors.mutedForeground)
                                 }
                             }
@@ -49,6 +49,7 @@ extension S0 {
                             .padding(.vertical, S0.Theme.Spacing.sm)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Sort by \(column.title)")
                     }
                 }
                 .background(S0.Theme.Colors.muted.opacity(0.5))

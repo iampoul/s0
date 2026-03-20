@@ -7,6 +7,7 @@ extension S0 {
         @Binding private var text: String
         private let placeholder: String
         private let onSubmit: (() -> Void)?
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
         public init(
             text: Binding<String>,
@@ -22,7 +23,7 @@ extension S0 {
             HStack(spacing: S0.Theme.Spacing.sm) {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(S0.Theme.Colors.mutedForeground)
-                    .font(.system(size: 16))
+                    .font(.body)
 
                 TextField(placeholder, text: $text)
                     .font(S0.Theme.Typography.body)
@@ -35,15 +36,16 @@ extension S0 {
 
                 if !text.isEmpty {
                     Button {
-                        withAnimation(S0.Theme.Animation.fast) {
+                        withAnimation(reduceMotion ? nil : S0.Theme.Animation.fast) {
                             text = ""
                         }
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(S0.Theme.Colors.mutedForeground)
-                            .font(.system(size: 14))
+                            .font(.caption)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Clear search")
                 }
             }
             .padding(.horizontal, S0.Theme.Spacing.md)

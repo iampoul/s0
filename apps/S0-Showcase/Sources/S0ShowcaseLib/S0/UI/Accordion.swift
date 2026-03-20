@@ -6,6 +6,7 @@ extension S0 {
         private let title: String
         private let content: Content
         @State private var isExpanded = false
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
         
         public init(_ title: String, expanded: Bool = false, @ViewBuilder content: () -> Content) {
             self.title = title
@@ -16,7 +17,7 @@ extension S0 {
         public var body: some View {
             VStack(alignment: .leading, spacing: 0) {
                 SwiftUI.Button {
-                    withAnimation(S0.Theme.Animation.default) {
+                    withAnimation(reduceMotion ? nil : S0.Theme.Animation.default) {
                         isExpanded.toggle()
                     }
                 } label: {
@@ -35,6 +36,8 @@ extension S0 {
                     .padding(.vertical, S0.Theme.Spacing.lg)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(title)
+                .accessibilityHint("Double tap to expand or collapse")
                 
                 if isExpanded {
                     content

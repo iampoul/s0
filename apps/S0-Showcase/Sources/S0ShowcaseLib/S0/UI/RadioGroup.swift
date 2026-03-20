@@ -5,6 +5,7 @@ extension S0 {
     public struct RadioGroup<Value: Hashable>: View {
         private let options: [(value: Value, label: String)]
         @Binding private var selection: Value
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
         
         public init(selection: Binding<Value>, options: [(value: Value, label: String)]) {
             self._selection = selection
@@ -28,7 +29,7 @@ extension S0 {
                                         .frame(width: 10, height: 10)
                                         .opacity(selection == option.value ? 1 : 0)
                                 )
-                                .animation(S0.Theme.Animation.fast, value: selection)
+                                .animation(reduceMotion ? nil : S0.Theme.Animation.fast, value: selection)
                             
                             Text(option.label)
                                 .font(S0.Theme.Typography.button)
@@ -36,6 +37,8 @@ extension S0 {
                         }
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(option.label)
+                    .accessibilityValue(selection == option.value ? "Selected" : "Not selected")
                 }
             }
         }

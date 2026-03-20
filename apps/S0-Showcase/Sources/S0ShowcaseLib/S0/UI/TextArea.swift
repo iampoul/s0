@@ -40,6 +40,7 @@ extension S0 {
                     TextEditor(text: $text)
                         .font(S0.Theme.Typography.button)
                         .scrollContentBackground(.hidden)
+                        .accessibilityLabel(label ?? placeholder)
                         .padding(.horizontal, S0.Theme.Spacing.sm)
                         .padding(.vertical, S0.Theme.Spacing.sm)
                         .frame(minHeight: minHeight)
