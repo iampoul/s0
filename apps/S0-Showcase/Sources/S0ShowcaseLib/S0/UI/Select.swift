@@ -31,6 +31,7 @@ extension S0 {
                 #else
                 .pickerStyle(.automatic)
                 #endif
+                .accessibilityLabel(label ?? "Selection")
                 .tint(S0.Theme.Colors.foreground)
                 .padding(.horizontal, S0.Theme.Spacing.md)
                 .padding(.vertical, S0.Theme.Spacing.xs)

@@ -31,9 +31,11 @@ extension S0 {
                 if let step = step {
                     SwiftUI.Slider(value: $value, in: range, step: step)
                         .tint(S0.Theme.Colors.primary)
+                        .accessibilityLabel(label ?? "Slider")
                 } else {
                     SwiftUI.Slider(value: $value, in: range)
                         .tint(S0.Theme.Colors.primary)
+                        .accessibilityLabel(label ?? "Slider")
                 }
             }
         }

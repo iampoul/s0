@@ -6,6 +6,7 @@ extension S0 {
         private let lineWidth: CGFloat
         private let size: CGFloat
         @State private var isAnimating = false
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
         
         public init(size: CGFloat = 20, lineWidth: CGFloat = 2) {
             self.size = size
@@ -19,10 +20,12 @@ extension S0 {
                 .frame(width: size, height: size)
                 .rotationEffect(.degrees(isAnimating ? 360 : 0))
                 .animation(
-                    .linear(duration: 0.75).repeatForever(autoreverses: false),
+                    reduceMotion ? nil : .linear(duration: 0.75).repeatForever(autoreverses: false),
                     value: isAnimating
                 )
-                .onAppear { isAnimating = true }
+                .onAppear { isAnimating = !reduceMotion }
+                .accessibilityLabel("Loading")
+                .accessibilityAddTraits(.updatesFrequently)
         }
     }
 }

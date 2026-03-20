@@ -52,6 +52,7 @@ extension S0 {
                 )
                 .labelsHidden()
                 .datePickerStyle(.graphical)
+                .accessibilityLabel(label ?? "Date picker")
                 .padding(S0.Theme.Spacing.md)
                 .background(S0.Theme.Colors.background)
                 .cornerRadius(S0.Theme.Radius.md)
@@ -83,6 +84,7 @@ extension S0 {
                 #else
                 .datePickerStyle(.field)
                 #endif
+                .accessibilityLabel(label ?? "Date picker")
             }
             .padding(.horizontal, S0.Theme.Spacing.md)
             .padding(.vertical, S0.Theme.Spacing.sm)

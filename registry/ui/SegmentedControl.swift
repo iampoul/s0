@@ -6,6 +6,7 @@ extension S0 {
     public struct SegmentedControl<Value: Hashable>: View {
         @Binding private var selection: Value
         private let options: [(value: Value, label: String)]
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
         public init(
             selection: Binding<Value>,
@@ -22,7 +23,7 @@ extension S0 {
                     let isSelected = selection == option.value
 
                     Button {
-                        withAnimation(S0.Theme.Animation.fast) {
+                        withAnimation(reduceMotion ? nil : S0.Theme.Animation.fast) {
                             selection = option.value
                         }
                     } label: {
@@ -45,6 +46,8 @@ extension S0 {
                             .s0Shadow(.sm)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(option.label)
+                    .accessibilityValue(isSelected ? "Selected" : "Not selected")
                 }
             }
             .padding(S0.Theme.Spacing.xxs)
