@@ -4,16 +4,16 @@ import { useState } from "react"
 import { Copy, Check } from "lucide-react"
 
 const K = ({ children }: { children: React.ReactNode }) => (
-  <span style={{ color: "#f24c00" }}>{children}</span>
+  <span className="text-[#c2185b] dark:text-[#f24c00]">{children}</span>
 )
 const T = ({ children }: { children: React.ReactNode }) => (
-  <span style={{ color: "#9cdcfe" }}>{children}</span>
+  <span className="text-[#0070c9] dark:text-[#9cdcfe]">{children}</span>
 )
 const C = ({ children }: { children: React.ReactNode }) => (
-  <span style={{ color: "#f59060" }}>{children}</span>
+  <span className="text-[#d45d00] dark:text-[#f59060]">{children}</span>
 )
 const S = ({ children }: { children: React.ReactNode }) => (
-  <span style={{ color: "#8a9290" }}>{children}</span>
+  <span className="text-[#6e7681] dark:text-[#8a9290]">{children}</span>
 )
 
 type Line = React.ReactNode
