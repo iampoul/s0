@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.0](https://github.com/iampoul/s0/compare/v0.5.1...v0.6.0) (2026-03-20)
+
+
+### Features
+
+* accessibility audit — VoiceOver, Dynamic Type, reduced motion ([40ffe69](https://github.com/iampoul/s0/commit/40ffe691fbc64eb1c0e8302a4dd047f91a3fcb96))
+* accessibility audit — VoiceOver, Dynamic Type, reduced motion ([3c903bc](https://github.com/iampoul/s0/commit/3c903bcddd9ce31e530f858565d32b95eb52ffbc))
+
+
+### Bug Fixes
+
+* proofread and fix web app copy for SwiftUI audience ([6e332cc](https://github.com/iampoul/s0/commit/6e332cc3c07dd66ac80e1518310e1902dac233ce))
+* proofread and fix web app copy for SwiftUI audience ([7bffac6](https://github.com/iampoul/s0/commit/7bffac6aa7e09c31afa287cd08061810a55a2eb0))
+
 ## [0.5.1](https://github.com/iampoul/s0/compare/v0.5.0...v0.5.1) (2026-03-20)
 
 
