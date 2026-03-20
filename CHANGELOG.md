@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.0](https://github.com/iampoul/s0/compare/v0.5.1...v0.6.0) (2026-03-20)
+
+
+### Features
+
+* accessibility audit — VoiceOver, Dynamic Type, reduced motion ([40ffe69](https://github.com/iampoul/s0/commit/40ffe691fbc64eb1c0e8302a4dd047f91a3fcb96))
+
+
+### Bug Fixes
+
+* proofread and fix web app copy for SwiftUI audience ([7bffac6](https://github.com/iampoul/s0/commit/7bffac6aa7e09c31afa287cd08061810a55a2eb0))
+
 ## [0.5.1](https://github.com/iampoul/s0/compare/v0.5.0...v0.5.1) (2026-03-20)
 
 
@@ -7,9 +19,6 @@
 
 * changelog page now parses all Release Please entries ([d96f672](https://github.com/iampoul/s0/commit/d96f6729b3bc43fc1992964683a8804d154f51fe))
 * proofread and fix web app copy for SwiftUI audience ([91a9e6c](https://github.com/iampoul/s0/commit/91a9e6c491637bef037e024157845fed2dd9ee7b))
-* proofread and fix web app copy for SwiftUI audience ([4e8bc07](https://github.com/iampoul/s0/commit/4e8bc07c51ff588d04e023ae6293184c7c021c31))
-* proofread and fix web app copy for SwiftUI audience ([d866ef1](https://github.com/iampoul/s0/commit/d866ef19e7112b955422b5628ac66461568d91ec))
-* proofread and fix web app copy for SwiftUI audience ([ddd0d42](https://github.com/iampoul/s0/commit/ddd0d42ecdb0fbc0e7ac11188df051d1ab308d0a))
 
 ## [0.5.0](https://github.com/iampoul/s0/compare/v0.4.0...v0.5.0) (2026-03-19)
 
