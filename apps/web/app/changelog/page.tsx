@@ -68,6 +68,27 @@ export default function ChangelogPage() {
 
   const releases = parseChangelog(content)
 
+  // Filter items: only show consumer-relevant changes (not CI, workflow, internal fixes)
+  const internalPatterns = [
+    /workflow/i, /ci\b/i, /homebrew/i, /secret/i, /release.?please/i,
+    /tap update/i, /yaml/i, /token/i, /environment.*build/i,
+    /screenshot/i, /snapshot/i,
+  ]
+
+  const filteredReleases = releases
+    .map((release) => ({
+      ...release,
+      sections: release.sections
+        .map((section) => ({
+          ...section,
+          items: section.items.filter(
+            (item) => !internalPatterns.some((p) => p.test(item))
+          ),
+        }))
+        .filter((section) => section.items.length > 0),
+    }))
+    .filter((release) => release.sections.length > 0)
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       <Navbar />
@@ -80,7 +101,7 @@ export default function ChangelogPage() {
         </p>
 
         <div className="space-y-12">
-          {releases.map((release) => (
+          {filteredReleases.map((release) => (
             <article key={release.version} className="relative pl-8 border-l-2 border-border">
               <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-primary border-4 border-background" />
               <div className="flex items-baseline gap-3 mb-4">
@@ -112,7 +133,7 @@ export default function ChangelogPage() {
           ))}
         </div>
 
-        {releases.length === 0 && (
+        {filteredReleases.length === 0 && (
           <p className="text-muted-foreground text-center py-12">No releases yet.</p>
         )}
       </div>
