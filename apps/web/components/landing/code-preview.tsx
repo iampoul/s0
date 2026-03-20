@@ -4,16 +4,16 @@ import { useState } from "react"
 import { Copy, Check } from "lucide-react"
 
 const K = ({ children }: { children: React.ReactNode }) => (
-  <span style={{ color: "#f24c00" }}>{children}</span>
+  <span className="text-[#c2185b] dark:text-[#f24c00]">{children}</span>
 )
 const T = ({ children }: { children: React.ReactNode }) => (
-  <span style={{ color: "#9cdcfe" }}>{children}</span>
+  <span className="text-[#0070c9] dark:text-[#9cdcfe]">{children}</span>
 )
 const C = ({ children }: { children: React.ReactNode }) => (
-  <span style={{ color: "#f59060" }}>{children}</span>
+  <span className="text-[#d45d00] dark:text-[#f59060]">{children}</span>
 )
 const S = ({ children }: { children: React.ReactNode }) => (
-  <span style={{ color: "#8a9290" }}>{children}</span>
+  <span className="text-[#6e7681] dark:text-[#8a9290]">{children}</span>
 )
 
 type Line = React.ReactNode
@@ -21,46 +21,44 @@ type Line = React.ReactNode
 const codeLines: Line[] = [
   <><K>import</K> S0</>,
   <></>,
-  <><K>struct</K> <T>WelcomeView</T>: <T>View</T> {"{"}</>,
-  <>{"  "}<K>var</K> body: <K>some</K> <T>View</T> {"{"}</>,
-  <>{"    "}<T>VStack</T>(<S>spacing:</S> <S>20</S>) {"{"}</>,
-  <>{"      "}<C>S0.Button</C>(<S>"Deploy to Production"</S>) {"{"}</>,
-  <>{"        "}<S>// Action here</S></>,
-  <>{"      "}{"}"}</>,
-  <>{"      "}<S>.variant</S>(<S>.default</S>)</>,
-  <>{"      "}<S>.size</S>(<S>.lg</S>)</>,
+  <><K>struct</K> <T>ProfileCard</T>: <T>View</T> {"{"}</>,
+  <>{"  "}<K>@State</K> <K>private var</K> name = <S>""</S></>,
+  <>{"  "}<K>@State</K> <K>private var</K> notify = <K>true</K></>,
   <></>,
-  <>{"      "}<C>S0.Button</C>(<S>variant:</S> <S>.outline</S>) {"{"}</>,
-  <>{"        "}<T>HStack</T> {"{"}</>,
-  <>{"          "}<T>Image</T>(<S>systemName:</S> <S>"terminal"</S>)</>,
-  <>{"          "}<T>Text</T>(<S>"View Source"</S>)</>,
+  <>{"  "}<K>var</K> body: <K>some</K> <T>View</T> {"{"}</>,
+  <>{"    "}<C>S0.Card</C> {"{"}</>,
+  <>{"      "}<T>VStack</T>(<S>spacing:</S> <C>S0.Theme.Spacing.md</C>) {"{"}</>,
+  <>{"        "}<C>S0.Avatar</C>(<S>initials:</S> <S>"JD"</S>, <S>size:</S> <S>.lg</S>)</>,
+  <>{"        "}<C>S0.Input</C>(<S>"Name"</S>, <S>text:</S> <S>$name</S>,</>,
+  <>{"               "}<S>placeholder:</S> <S>"Your name"</S>)</>,
+  <>{"        "}<C>S0.Toggle</C>(<S>"Notifications"</S>, <S>isOn:</S> <S>$notify</S>)</>,
+  <>{"        "}<C>S0.Button</C>(<S>"Save Profile"</S>) {"{"}</>,
+  <>{"          "}<S>// Save action</S></>,
   <>{"        "}{"}"}</>,
   <>{"      "}{"}"}</>,
   <>{"    "}{"}"}</>,
-  <>{"    "}<S>.padding</S>()</>,
   <>{"  "}{"}"}</>,
   <>{"}"}</>,
 ]
 
 const codeString = `import S0
 
-struct WelcomeView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            S0.Button("Deploy to Production") {
-                // Action here
-            }
-            .variant(.default)
-            .size(.lg)
+struct ProfileCard: View {
+    @State private var name = ""
+    @State private var notify = true
 
-            S0.Button(variant: .outline) {
-                HStack {
-                    Image(systemName: "terminal")
-                    Text("View Source")
+    var body: some View {
+        S0.Card {
+            VStack(spacing: S0.Theme.Spacing.md) {
+                S0.Avatar(initials: "JD", size: .lg)
+                S0.Input("Name", text: $name,
+                         placeholder: "Your name")
+                S0.Toggle("Notifications", isOn: $notify)
+                S0.Button("Save Profile") {
+                    // Save action
                 }
             }
         }
-        .padding()
     }
 }`
 
