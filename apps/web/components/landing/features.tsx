@@ -29,7 +29,7 @@ const features = [
     icon: Monitor,
     title: "Multi-platform",
     description:
-      "iOS, macOS, watchOS, and visionOS. One API, every Apple platform, all adaptive by default.",
+      "iOS and macOS from a single codebase. Every component adapts to its platform automatically.",
   },
   {
     icon: Package,
