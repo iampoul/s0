@@ -32,6 +32,7 @@ extension S0 {
                                 Text(item.title)
                             }
                         }
+                        .accessibilityLabel(item.title)
                     }
                 }
             } label: {

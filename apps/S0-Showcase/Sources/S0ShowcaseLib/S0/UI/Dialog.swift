@@ -8,6 +8,7 @@ extension S0 {
         private let title: String
         private let description: String?
         private let dialogContent: DialogContent
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
         public init(
             isPresented: Binding<Bool>,
@@ -30,6 +31,7 @@ extension S0 {
                             .ignoresSafeArea()
                             .onTapGesture { isPresented = false }
                             .transition(.opacity)
+                            .accessibilityHidden(true)
 
                         // Dialog
                         VStack(alignment: .leading, spacing: S0.Theme.Spacing.lg) {
@@ -53,9 +55,10 @@ extension S0 {
                         .s0Shadow(.lg)
                         .padding(.horizontal, S0.Theme.Spacing.xxl)
                         .transition(.scale.combined(with: .opacity))
+                        .accessibilityAddTraits(.isModal)
                     }
                 }
-                .animation(S0.Theme.Animation.default, value: isPresented)
+                .animation(reduceMotion ? nil : S0.Theme.Animation.default, value: isPresented)
         }
     }
 
