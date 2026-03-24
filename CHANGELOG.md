@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/iampoul/s0/compare/v0.6.0...v0.7.0) (2026-03-24)
+
+
+### Features
+
+* **date-picker:** deep redesign with validation, presets, optional dates, and range picker ([#18](https://github.com/iampoul/s0/issues/18)) ([367d4e6](https://github.com/iampoul/s0/commit/367d4e69c3a28e8868c474e0b24c1d1528c46ced))
+
 ## [0.6.0](https://github.com/iampoul/s0/compare/v0.5.1...v0.6.0) (2026-03-20)
 
 
