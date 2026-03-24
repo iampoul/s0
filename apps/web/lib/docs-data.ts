@@ -526,20 +526,41 @@ S0.Dialog(isPresented: $showDialog, title: "Confirm Deletion") {
   {
     name: "DatePicker",
     slug: "date-picker",
-    description: "Styled date and time picker with graphical and compact variants.",
+    description: "Date picker with graphical, compact, and field variants. Supports validation, presets, optional dates, and date range selection.",
     category: "forms",
     usage: [
       `@State private var date = Date()
 
+// Graphical calendar (default)
 S0.DatePicker("Birthday", selection: $date)`,
-      `S0.DatePicker("Appointment", selection: $date, variant: .compact)`,
-      `S0.DatePicker("Event", selection: $date, displayedComponents: [.date, .hourAndMinute])`,
+      `// Compact inline row
+S0.DatePicker("Reminder", selection: $date, variant: .compact)`,
+      `// Field variant — tap to reveal calendar
+S0.DatePicker("Due date", selection: $date, variant: .field)`,
+      `// With date constraints
+S0.DatePicker("Appointment", selection: $date, in: Date()...Date().addingTimeInterval(90 * 86400))`,
+      `// With validation
+S0.DatePicker("Start date", selection: $date, validation: .error("Must be in the future"))`,
+      `// With presets
+S0.DatePicker("Deadline", selection: $date, presets: [.today, .tomorrow, .nextWeek, .nextMonth])`,
+      `// Optional date with placeholder and clear button
+@State private var optionalDate: Date? = nil
+
+S0.OptionalDatePicker("Expiry date", selection: $optionalDate, placeholder: "No expiry set")`,
+      `// Date range picker with presets
+@State private var start = Date()
+@State private var end = Date()
+
+S0.DateRangePicker("Trip dates", start: $start, end: $end, presets: [.thisWeek, .thisMonth, .last30Days])`,
     ],
     props: [
-      { name: "label", type: "String?", default: "nil", description: "Optional label above the picker." },
+      { name: "label", type: "String?", default: "nil", description: "Optional label displayed above the picker." },
       { name: "selection", type: "Binding<Date>", description: "Binding to the selected date." },
-      { name: "variant", type: "DatePickerVariant", default: ".default", description: "Display variant: .default (graphical), .compact." },
-      { name: "displayedComponents", type: "DatePicker.Components", default: "[.date]", description: "Components to display: .date, .hourAndMinute." },
+      { name: "variant", type: "DatePickerVariant", default: ".graphical", description: "Display style: .graphical (calendar), .compact (inline row), .field (tap-to-reveal)." },
+      { name: "displayedComponents", type: "DatePicker.Components", default: "[.date]", description: "What to display: .date, .hourAndMinute, or both." },
+      { name: "in", type: "ClosedRange<Date>?", default: "nil", description: "Optional min/max date constraint." },
+      { name: "validation", type: "DatePickerValidation", default: ".none", description: "Validation state: .none, .error(\"message\"), .success(\"message\")." },
+      { name: "presets", type: "[DatePreset]", default: "[]", description: "Quick-select preset buttons: .today, .tomorrow, .nextWeek, .nextMonth, or custom." },
     ],
   },
   {

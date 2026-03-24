@@ -35,13 +35,18 @@ function parseChangelog(markdown: string) {
       continue
     }
 
-    // * item text ([commit](url)) — strip the commit link for cleaner display
+    // * item text ([#18](url)) ([commit](url)) — strip refs for cleaner display
     const itemMatch = line.match(/^\* (.+)/)
     if (itemMatch && currentSection) {
       const text = itemMatch[1]
-        .replace(/\s*\(\[[a-f0-9]+\]\([^)]+\)\)\s*$/, "") // strip trailing commit link
-        .replace(/\*\*/g, "") // strip bold markers
-      currentSection.items.push(text)
+        .replace(/\s*\(\[[^\]]+\]\([^)]+\)\)/g, "") // strip all ([text](url)) references (commits, PRs)
+        .replace(/\*\*[^*]+\*\*\s*/g, "") // strip bold scope prefix like **date-picker:**
+        .trim()
+      if (text) {
+        // Capitalize first letter after stripping scope
+        const cleaned = text.charAt(0).toUpperCase() + text.slice(1)
+        currentSection.items.push(cleaned)
+      }
     }
   }
 
