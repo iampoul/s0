@@ -282,7 +282,7 @@
     {
       "name": "date-picker",
       "category": "forms",
-      "description": "Styled date and time picker with graphical and compact variants.",
+      "description": "Date picker with graphical, compact, and field variants. Supports validation, presets, optional dates, and date range selection.",
       "files": [
         "registry/ui/DatePicker.swift"
       ],
