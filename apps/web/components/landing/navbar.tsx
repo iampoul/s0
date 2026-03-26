@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Menu, X, Sun, Moon } from "lucide-react"
 import { useTheme } from "next-themes"
+import { SearchCommand } from "@/components/search-command"
 
 const navLinks = [
   { label: "Components", href: "/docs/components" },
@@ -43,6 +44,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
+          <SearchCommand />
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -60,13 +62,16 @@ export function Navbar() {
           </Link>
         </div>
 
-        <button
-          className="md:hidden text-muted-foreground hover:text-foreground"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex md:hidden items-center gap-2">
+          <SearchCommand />
+          <button
+            className="text-muted-foreground hover:text-foreground"
+            onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
+          >
+            {open ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {open && (
