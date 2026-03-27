@@ -413,36 +413,17 @@ final class CLIIntegrationTests: XCTestCase {
     }
     
     // MARK: - Remote Registry Tests
-    //
-    // These tests hit the live GitHub registry (raw.githubusercontent.com).
-    // They are NOT bypassed — when the network is available they run and assert
-    // the full add/list/dependency workflow against the real remote.
-    //
-    // They use XCTSkipIf (not XCTSkip) so they only skip when the remote is
-    // genuinely unreachable (e.g. sandboxed CI runners, network outages).
-    // A skipped test is still surfaced in test output as "skipped" — it does
-    // not silently pass. If these tests are consistently skipping in CI,
-    // that's a signal to investigate the runner's network config.
-    //
-    // All component logic is covered by the local-registry tests above;
-    // these tests exist to validate the remote fetch + cache path specifically.
-    
-    /// Probe whether the remote registry is reachable. Returns true if it is.
-    private func skipIfRemoteUnreachable() throws {
-        let probe = try run(["list"])
-        try XCTSkipIf(probe.exitCode != 0, "Remote registry unreachable — skipping network-dependent test")
-    }
     
     func testDefaultUsesRemoteRegistry() throws {
+        // Without -r flag, should fetch from GitHub
         let result = try run(["list"])
-        try XCTSkipIf(result.exitCode != 0, "Remote registry unreachable")
         
+        XCTAssertEqual(result.exitCode, 0)
         XCTAssertTrue(result.stdout.contains("Available components"))
         XCTAssertTrue(result.stdout.contains("button"))
     }
     
     func testRemoteAddComponent() throws {
-        try skipIfRemoteUnreachable()
         try run(["init"])
         let result = try run(["add", "badge"])
         
@@ -450,12 +431,12 @@ final class CLIIntegrationTests: XCTestCase {
         XCTAssertTrue(result.stdout.contains("Added Badge.swift"))
         XCTAssertTrue(fileExists("S0/UI/Badge.swift"))
         
+        // Verify file has real content
         let content = try readFile("S0/UI/Badge.swift")
         XCTAssertTrue(content.contains("extension S0"))
     }
     
     func testRemoteAddWithDependency() throws {
-        try skipIfRemoteUnreachable()
         try run(["init"])
         let result = try run(["add", "accordion"])
         
