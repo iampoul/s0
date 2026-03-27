@@ -155,7 +155,7 @@ func loadThemes(from source: RegistrySource) throws -> [ThemeDefinition] {
 
 // MARK: - Remote Fetch & Cache
 
-func fetchRemote(urlString: String, cacheKey: String) throws -> Data {
+func fetchRemote(urlString: String, cacheKey: String, retries: Int = 2) throws -> Data {
     let fm = FileManager.default
     let cachedPath = cacheDir + "/" + cacheKey.replacingOccurrences(of: "/", with: "_")
     
@@ -169,51 +169,61 @@ func fetchRemote(urlString: String, cacheKey: String) throws -> Data {
         }
     }
     
-    // Fetch from network
+    // Fetch from network with retry
     guard let url = URL(string: urlString) else {
         print("Error: Invalid URL: \(urlString)")
         throw ExitCode.failure
     }
     
-    let semaphore = DispatchSemaphore(value: 0)
-    var result: Data?
-    var fetchError: Error?
+    var lastError: Error?
     
-    let task = URLSession.shared.dataTask(with: url) { data, response, error in
-        if let error = error {
-            fetchError = error
-        } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-            fetchError = NSError(domain: "S0", code: httpResponse.statusCode,
-                                userInfo: [NSLocalizedDescriptionKey: "HTTP \(httpResponse.statusCode)"])
-        } else {
-            result = data
+    for attempt in 0...retries {
+        if attempt > 0 {
+            let delay = UInt32(attempt) // 1s, 2s backoff
+            Thread.sleep(forTimeInterval: Double(delay))
         }
-        semaphore.signal()
-    }
-    task.resume()
-    semaphore.wait()
-    
-    if let error = fetchError {
-        // Fall back to stale cache if available
-        if fm.fileExists(atPath: cachedPath),
-           let data = try? Data(contentsOf: URL(fileURLWithPath: cachedPath)) {
-            print("⚠ Network error, using cached version: \(error.localizedDescription)")
+        
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        config.timeoutIntervalForResource = 30
+        let session = URLSession(configuration: config)
+        
+        let semaphore = DispatchSemaphore(value: 0)
+        var result: Data?
+        var fetchError: Error?
+        
+        let task = session.dataTask(with: url) { data, response, error in
+            if let error = error {
+                fetchError = error
+            } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                fetchError = NSError(domain: "S0", code: httpResponse.statusCode,
+                                    userInfo: [NSLocalizedDescriptionKey: "HTTP \(httpResponse.statusCode)"])
+            } else {
+                result = data
+            }
+            semaphore.signal()
+        }
+        task.resume()
+        semaphore.wait()
+        
+        if let data = result {
+            // Write to cache
+            try? fm.createDirectory(atPath: cacheDir, withIntermediateDirectories: true)
+            try? data.write(to: URL(fileURLWithPath: cachedPath))
             return data
         }
-        print("Error: Could not fetch \(urlString): \(error.localizedDescription)")
-        throw ExitCode.failure
+        
+        lastError = fetchError
     }
     
-    guard let data = result else {
-        print("Error: No data received from \(urlString)")
-        throw ExitCode.failure
+    // All retries exhausted — fall back to stale cache
+    if fm.fileExists(atPath: cachedPath),
+       let data = try? Data(contentsOf: URL(fileURLWithPath: cachedPath)) {
+        print("⚠ Network error, using cached version: \(lastError?.localizedDescription ?? "unknown")")
+        return data
     }
-    
-    // Write to cache
-    try? fm.createDirectory(atPath: cacheDir, withIntermediateDirectories: true)
-    try? data.write(to: URL(fileURLWithPath: cachedPath))
-    
-    return data
+    print("Error: Could not fetch \(urlString): \(lastError?.localizedDescription ?? "unknown")")
+    throw ExitCode.failure
 }
 
 func fetchComponentFile(filePath: String, source: RegistrySource) throws -> String {
