@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.0](https://github.com/iampoul/s0/compare/v0.7.0...v0.8.0) (2026-03-27)
+
+
+### Features
+
+* add cmd+K search command palette ([#21](https://github.com/iampoul/s0/issues/21)) ([05f27af](https://github.com/iampoul/s0/commit/05f27affbc2e1213eb3c56068cec05e51fe82975))
+
+
+### Bug Fixes
+
+* add retry + timeout to remote registry fetches ([#23](https://github.com/iampoul/s0/issues/23)) ([06002f3](https://github.com/iampoul/s0/commit/06002f3d1aedfadbed2b1d0be35aaaafc680e82a))
+
 ## [0.7.0](https://github.com/iampoul/s0/compare/v0.6.0...v0.7.0) (2026-03-24)
 
 
