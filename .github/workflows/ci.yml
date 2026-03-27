@@ -36,7 +36,7 @@ jobs:
             HEAD=${{ github.event.pull_request.head.sha }}
             CHANGED=$(git diff --name-only "$BASE" "$HEAD")
 
-            if echo "$CHANGED" | grep -qE '^(packages/s0-cli/|registry/|registry\.json)'; then
+            if echo "$CHANGED" | grep -qE '^packages/s0-cli/|^registry/'; then
               echo "cli=true"  >> "$GITHUB_OUTPUT"
             else
               echo "cli=false" >> "$GITHUB_OUTPUT"
