@@ -78,6 +78,10 @@ export default function ChangelogPage() {
     /workflow/i, /ci\b/i, /homebrew/i, /secret/i, /release.?please/i,
     /tap update/i, /yaml/i, /token/i, /environment.*build/i,
     /screenshot/i, /snapshot/i,
+    /retry.*fetch/i, /remote.*registry.*fetch/i, /urlsession/i,
+    /cmd\+?k/i, /command palette/i, /search.*docs/i, /navbar/i,
+    /web.*app/i, /next\.?js/i, /vercel/i,
+    /scope ci/i, /change detection/i, /path filter/i,
   ]
 
   const filteredReleases = releases

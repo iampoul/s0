@@ -40,7 +40,10 @@ export function SearchCommand() {
     (href: string) => {
       setOpen(false)
       setSearch("")
-      router.push(href)
+      // Defer navigation so the dialog fully closes before the route change
+      requestAnimationFrame(() => {
+        router.push(href)
+      })
     },
     [router],
   )
