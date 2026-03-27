@@ -17,6 +17,7 @@ import { components, categories, sidebarNav } from "@/lib/docs-data"
 
 export function SearchCommand() {
   const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState("")
   const router = useRouter()
 
   useEffect(() => {
@@ -30,9 +31,15 @@ export function SearchCommand() {
     return () => document.removeEventListener("keydown", onKeyDown)
   }, [])
 
+  const handleOpenChange = useCallback((value: boolean) => {
+    setOpen(value)
+    if (!value) setSearch("")
+  }, [])
+
   const navigate = useCallback(
     (href: string) => {
       setOpen(false)
+      setSearch("")
       router.push(href)
     },
     [router],
@@ -61,12 +68,12 @@ export function SearchCommand() {
 
       <CommandDialog
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={handleOpenChange}
         title="Search documentation"
         description="Search components, guides, and pages"
         showCloseButton={false}
       >
-        <CommandInput placeholder="Search components, docs..." />
+        <CommandInput placeholder="Search components, docs..." value={search} onValueChange={setSearch} />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
 
