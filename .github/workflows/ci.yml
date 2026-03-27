@@ -11,8 +11,50 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Detect which parts of the monorepo changed so we only run
+  # the jobs that are relevant. Pushes to main always run everything.
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      cli: ${{ steps.check.outputs.cli }}
+      web: ${{ steps.check.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine changed paths
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # Pushes to main — always run everything
+            echo "cli=true"  >> "$GITHUB_OUTPUT"
+            echo "web=true"  >> "$GITHUB_OUTPUT"
+          else
+            BASE=${{ github.event.pull_request.base.sha }}
+            HEAD=${{ github.event.pull_request.head.sha }}
+            CHANGED=$(git diff --name-only "$BASE" "$HEAD")
+
+            if echo "$CHANGED" | grep -qE '^(packages/s0-cli/|registry/|registry\.json)'; then
+              echo "cli=true"  >> "$GITHUB_OUTPUT"
+            else
+              echo "cli=false" >> "$GITHUB_OUTPUT"
+              echo "ℹ No CLI/registry changes — CLI job will be skipped"
+            fi
+
+            if echo "$CHANGED" | grep -qE '^(apps/web/|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml)'; then
+              echo "web=true"  >> "$GITHUB_OUTPUT"
+            else
+              echo "web=false" >> "$GITHUB_OUTPUT"
+              echo "ℹ No web changes — Web job will be skipped"
+            fi
+          fi
+
   cli-build-and-test:
     name: CLI — Build & Test
+    needs: detect-changes
+    if: needs.detect-changes.outputs.cli == 'true'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +69,8 @@ jobs:
 
   web-build-and-test:
     name: Web — Build & Test
+    needs: detect-changes
+    if: needs.detect-changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
