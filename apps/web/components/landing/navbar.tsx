@@ -43,29 +43,27 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <SearchCommand />
-          {mounted && (
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-8 h-8 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors duration-200"
-              aria-label="Toggle theme"
+          <div className="hidden md:flex items-center gap-3">
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="w-8 h-8 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors duration-200"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+              </button>
+            )}
+            <Link
+              href="/docs/getting-started"
+              className="inline-flex items-center bg-primary text-primary-foreground text-sm font-medium font-sans px-4 py-1.5 hover:bg-primary/90 transition-colors"
             >
-              {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
-            </button>
-          )}
-          <Link
-            href="/docs/getting-started"
-            className="inline-flex items-center bg-primary text-primary-foreground text-sm font-medium font-sans px-4 py-1.5 hover:bg-primary/90 transition-colors"
-          >
-            Get started
-          </Link>
-        </div>
-
-        <div className="flex md:hidden items-center gap-2">
-          <SearchCommand />
+              Get started
+            </Link>
+          </div>
           <button
-            className="text-muted-foreground hover:text-foreground"
+            className="flex md:hidden text-muted-foreground hover:text-foreground"
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
