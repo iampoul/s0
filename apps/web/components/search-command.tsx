@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { FileText, Palette, Search, BookOpen, Component } from "lucide-react"
 import {
   Command,
@@ -23,7 +23,13 @@ import { components, categories, sidebarNav } from "@/lib/docs-data"
 
 export function SearchCommand() {
   const router = useRouter()
+  const pathname = usePathname()
   const [open, setOpen] = React.useState(false)
+
+  // Close on any route change
+  React.useEffect(() => {
+    setOpen(false)
+  }, [pathname])
 
   React.useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -45,11 +51,13 @@ export function SearchCommand() {
   }, [])
 
   const runCommand = React.useCallback(
-    (command: () => unknown) => {
+    (href: string) => {
       setOpen(false)
-      command()
+      if (href !== pathname) {
+        router.push(href)
+      }
     },
-    [],
+    [router, pathname],
   )
 
   return (
@@ -74,11 +82,11 @@ export function SearchCommand() {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogHeader className="sr-only">
-          <DialogTitle>Search documentation</DialogTitle>
-          <DialogDescription>Search components, guides, and pages</DialogDescription>
-        </DialogHeader>
         <DialogContent className="overflow-hidden p-0" showCloseButton={false}>
+          <DialogHeader className="sr-only">
+            <DialogTitle>Search documentation</DialogTitle>
+            <DialogDescription>Search components, guides, and pages</DialogDescription>
+          </DialogHeader>
           <Command className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3">
             <CommandInput placeholder="Search components, docs..." />
             <CommandList>
@@ -89,7 +97,7 @@ export function SearchCommand() {
                   <CommandItem
                     key={item.href}
                     value={item.title}
-                    onSelect={() => runCommand(() => router.push(item.href))}
+                    onSelect={() => runCommand(item.href)}
                   >
                     <BookOpen className="size-4 text-muted-foreground" />
                     <span>{item.title}</span>
@@ -102,14 +110,14 @@ export function SearchCommand() {
               <CommandGroup heading="Pages">
                 <CommandItem
                   value="Themes"
-                  onSelect={() => runCommand(() => router.push("/themes"))}
+                  onSelect={() => runCommand("/themes")}
                 >
                   <Palette className="size-4 text-muted-foreground" />
                   <span>Themes</span>
                 </CommandItem>
                 <CommandItem
                   value="Changelog"
-                  onSelect={() => runCommand(() => router.push("/changelog"))}
+                  onSelect={() => runCommand("/changelog")}
                 >
                   <FileText className="size-4 text-muted-foreground" />
                   <span>Changelog</span>
@@ -129,9 +137,7 @@ export function SearchCommand() {
                           key={c.slug}
                           value={`${c.name} ${c.description}`}
                           onSelect={() =>
-                            runCommand(() =>
-                              router.push(`/docs/components/${c.slug}`)
-                            )
+                            runCommand(`/docs/components/${c.slug}`)
                           }
                         >
                           <Component className="size-4 text-muted-foreground" />
