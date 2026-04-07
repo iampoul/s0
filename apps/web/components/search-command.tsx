@@ -1,28 +1,41 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import * as React from "react"
 import { useRouter } from "next/navigation"
 import { FileText, Palette, Search, BookOpen, Component } from "lucide-react"
 import {
-  CommandDialog,
+  Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { components, categories, sidebarNav } from "@/lib/docs-data"
 
 export function SearchCommand() {
-  const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState("")
   const router = useRouter()
+  const [open, setOpen] = React.useState(false)
 
-  useEffect(() => {
+  React.useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        if (
+          (e.target instanceof HTMLElement && e.target.isContentEditable) ||
+          e.target instanceof HTMLInputElement ||
+          e.target instanceof HTMLTextAreaElement ||
+          e.target instanceof HTMLSelectElement
+        ) {
+          return
+        }
         e.preventDefault()
         setOpen((prev) => !prev)
       }
@@ -31,21 +44,12 @@ export function SearchCommand() {
     return () => document.removeEventListener("keydown", onKeyDown)
   }, [])
 
-  const handleOpenChange = useCallback((value: boolean) => {
-    setOpen(value)
-    if (!value) setSearch("")
-  }, [])
-
-  const navigate = useCallback(
-    (href: string) => {
+  const runCommand = React.useCallback(
+    (command: () => unknown) => {
       setOpen(false)
-      setSearch("")
-      // Defer navigation so the dialog fully closes before the route change
-      requestAnimationFrame(() => {
-        router.push(href)
-      })
+      command()
     },
-    [router],
+    [],
   )
 
   return (
@@ -69,78 +73,84 @@ export function SearchCommand() {
         <Search size={14} />
       </button>
 
-      <CommandDialog
-        open={open}
-        onOpenChange={handleOpenChange}
-        title="Search documentation"
-        description="Search components, guides, and pages"
-        showCloseButton={false}
-      >
-        <CommandInput placeholder="Search components, docs..." value={search} onValueChange={setSearch} />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogHeader className="sr-only">
+          <DialogTitle>Search documentation</DialogTitle>
+          <DialogDescription>Search components, guides, and pages</DialogDescription>
+        </DialogHeader>
+        <DialogContent className="overflow-hidden p-0" showCloseButton={false}>
+          <Command className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3">
+            <CommandInput placeholder="Search components, docs..." />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
 
-          <CommandGroup heading="Getting Started">
-            {sidebarNav.gettingStarted.map((item) => (
-              <CommandItem
-                key={item.href}
-                value={item.title}
-                onSelect={() => navigate(item.href)}
-              >
-                <BookOpen className="size-4 text-muted-foreground" />
-                <span>{item.title}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+              <CommandGroup heading="Getting Started">
+                {sidebarNav.gettingStarted.map((item) => (
+                  <CommandItem
+                    key={item.href}
+                    value={item.title}
+                    onSelect={() => runCommand(() => router.push(item.href))}
+                  >
+                    <BookOpen className="size-4 text-muted-foreground" />
+                    <span>{item.title}</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
 
-          <CommandSeparator />
+              <CommandSeparator />
 
-          <CommandGroup heading="Pages">
-            <CommandItem
-              value="Themes"
-              onSelect={() => navigate("/themes")}
-            >
-              <Palette className="size-4 text-muted-foreground" />
-              <span>Themes</span>
-            </CommandItem>
-            <CommandItem
-              value="Changelog"
-              onSelect={() => navigate("/changelog")}
-            >
-              <FileText className="size-4 text-muted-foreground" />
-              <span>Changelog</span>
-            </CommandItem>
-          </CommandGroup>
+              <CommandGroup heading="Pages">
+                <CommandItem
+                  value="Themes"
+                  onSelect={() => runCommand(() => router.push("/themes"))}
+                >
+                  <Palette className="size-4 text-muted-foreground" />
+                  <span>Themes</span>
+                </CommandItem>
+                <CommandItem
+                  value="Changelog"
+                  onSelect={() => runCommand(() => router.push("/changelog"))}
+                >
+                  <FileText className="size-4 text-muted-foreground" />
+                  <span>Changelog</span>
+                </CommandItem>
+              </CommandGroup>
 
-          <CommandSeparator />
+              <CommandSeparator />
 
-          {(Object.keys(categories) as Array<keyof typeof categories>).map(
-            (cat) => {
-              const items = components.filter((c) => c.category === cat)
-              if (items.length === 0) return null
-              return (
-                <CommandGroup key={cat} heading={categories[cat]}>
-                  {items.map((c) => (
-                    <CommandItem
-                      key={c.slug}
-                      value={`${c.name} ${c.description}`}
-                      onSelect={() => navigate(`/docs/components/${c.slug}`)}
-                    >
-                      <Component className="size-4 text-muted-foreground" />
-                      <div className="flex flex-col">
-                        <span>{c.name}</span>
-                        <span className="text-xs text-muted-foreground line-clamp-1">
-                          {c.description}
-                        </span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )
-            },
-          )}
-        </CommandList>
-      </CommandDialog>
+              {(Object.keys(categories) as Array<keyof typeof categories>).map(
+                (cat) => {
+                  const items = components.filter((c) => c.category === cat)
+                  if (items.length === 0) return null
+                  return (
+                    <CommandGroup key={cat} heading={categories[cat]}>
+                      {items.map((c) => (
+                        <CommandItem
+                          key={c.slug}
+                          value={`${c.name} ${c.description}`}
+                          onSelect={() =>
+                            runCommand(() =>
+                              router.push(`/docs/components/${c.slug}`)
+                            )
+                          }
+                        >
+                          <Component className="size-4 text-muted-foreground" />
+                          <div className="flex flex-col">
+                            <span>{c.name}</span>
+                            <span className="text-xs text-muted-foreground line-clamp-1">
+                              {c.description}
+                            </span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  )
+                },
+              )}
+            </CommandList>
+          </Command>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
