@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { useRouter, usePathname } from "next/navigation"
 import { FileText, Palette, Search, BookOpen, Component } from "lucide-react"
 import {
@@ -12,25 +13,21 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { components, categories, sidebarNav } from "@/lib/docs-data"
 
 export function SearchCommand() {
   const router = useRouter()
   const pathname = usePathname()
   const [open, setOpen] = React.useState(false)
+  const panelRef = React.useRef<HTMLDivElement>(null)
+  const inputRef = React.useRef<HTMLInputElement>(null)
 
-  // Close on any route change
+  // Close on route change
   React.useEffect(() => {
     setOpen(false)
   }, [pathname])
 
+  // ⌘K toggle + Escape to close
   React.useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -45,19 +42,39 @@ export function SearchCommand() {
         e.preventDefault()
         setOpen((prev) => !prev)
       }
+      if (e.key === "Escape") {
+        setOpen(false)
+      }
     }
     document.addEventListener("keydown", onKeyDown)
     return () => document.removeEventListener("keydown", onKeyDown)
   }, [])
 
-  const runCommand = React.useCallback(
-    (href: string) => {
-      setOpen(false)
-      if (href !== pathname) {
-        router.push(href)
+  // Click outside to close
+  React.useEffect(() => {
+    if (!open) return
+    function onPointerDown(e: PointerEvent) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setOpen(false)
       }
+    }
+    document.addEventListener("pointerdown", onPointerDown)
+    return () => document.removeEventListener("pointerdown", onPointerDown)
+  }, [open])
+
+  // Auto-focus search input when opened
+  React.useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => inputRef.current?.focus())
+    }
+  }, [open])
+
+  const runCommand = React.useCallback(
+    (command: () => unknown) => {
+      setOpen(false)
+      command()
     },
-    [router, pathname],
+    [],
   )
 
   return (
@@ -81,82 +98,100 @@ export function SearchCommand() {
         <Search size={14} />
       </button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="overflow-hidden p-0" showCloseButton={false}>
-          <DialogHeader className="sr-only">
-            <DialogTitle>Search documentation</DialogTitle>
-            <DialogDescription>Search components, guides, and pages</DialogDescription>
-          </DialogHeader>
-          <Command className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3">
-            <CommandInput placeholder="Search components, docs..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+      {open &&
+        createPortal(
+          <>
+            <div className="fixed inset-0 z-50 bg-black/50" />
+            <div
+              ref={panelRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Search documentation"
+              className="fixed top-[20%] left-[50%] z-50 w-full max-w-[calc(100%-2rem)] -translate-x-1/2 overflow-hidden rounded-lg border bg-background shadow-lg sm:max-w-lg"
+            >
+              <Command className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3">
+                <CommandInput
+                  ref={inputRef}
+                  placeholder="Search components, docs..."
+                />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
 
-              <CommandGroup heading="Getting Started">
-                {sidebarNav.gettingStarted.map((item) => (
-                  <CommandItem
-                    key={item.href}
-                    value={item.title}
-                    onSelect={() => runCommand(item.href)}
-                  >
-                    <BookOpen className="size-4 text-muted-foreground" />
-                    <span>{item.title}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+                  <CommandGroup heading="Getting Started">
+                    {sidebarNav.gettingStarted.map((item) => (
+                      <CommandItem
+                        key={item.href}
+                        value={item.title}
+                        onSelect={() =>
+                          runCommand(() => router.push(item.href))
+                        }
+                      >
+                        <BookOpen className="size-4 text-muted-foreground" />
+                        <span>{item.title}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
 
-              <CommandSeparator />
+                  <CommandSeparator />
 
-              <CommandGroup heading="Pages">
-                <CommandItem
-                  value="Themes"
-                  onSelect={() => runCommand("/themes")}
-                >
-                  <Palette className="size-4 text-muted-foreground" />
-                  <span>Themes</span>
-                </CommandItem>
-                <CommandItem
-                  value="Changelog"
-                  onSelect={() => runCommand("/changelog")}
-                >
-                  <FileText className="size-4 text-muted-foreground" />
-                  <span>Changelog</span>
-                </CommandItem>
-              </CommandGroup>
+                  <CommandGroup heading="Pages">
+                    <CommandItem
+                      value="Themes"
+                      onSelect={() =>
+                        runCommand(() => router.push("/themes"))
+                      }
+                    >
+                      <Palette className="size-4 text-muted-foreground" />
+                      <span>Themes</span>
+                    </CommandItem>
+                    <CommandItem
+                      value="Changelog"
+                      onSelect={() =>
+                        runCommand(() => router.push("/changelog"))
+                      }
+                    >
+                      <FileText className="size-4 text-muted-foreground" />
+                      <span>Changelog</span>
+                    </CommandItem>
+                  </CommandGroup>
 
-              <CommandSeparator />
+                  <CommandSeparator />
 
-              {(Object.keys(categories) as Array<keyof typeof categories>).map(
-                (cat) => {
-                  const items = components.filter((c) => c.category === cat)
-                  if (items.length === 0) return null
-                  return (
-                    <CommandGroup key={cat} heading={categories[cat]}>
-                      {items.map((c) => (
-                        <CommandItem
-                          key={c.slug}
-                          value={`${c.name} ${c.description}`}
-                          onSelect={() =>
-                            runCommand(`/docs/components/${c.slug}`)
-                          }
-                        >
-                          <Component className="size-4 text-muted-foreground" />
-                          <div className="flex flex-col">
-                            <span>{c.name}</span>
-                            <span className="text-xs text-muted-foreground line-clamp-1">
-                              {c.description}
-                            </span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  )
-                },
-              )}
-            </CommandList>
-          </Command>
-        </DialogContent>
-      </Dialog>
+                  {(
+                    Object.keys(categories) as Array<keyof typeof categories>
+                  ).map((cat) => {
+                    const items = components.filter((c) => c.category === cat)
+                    if (items.length === 0) return null
+                    return (
+                      <CommandGroup key={cat} heading={categories[cat]}>
+                        {items.map((c) => (
+                          <CommandItem
+                            key={c.slug}
+                            value={`${c.name} ${c.description}`}
+                            onSelect={() =>
+                              runCommand(() =>
+                                router.push(`/docs/components/${c.slug}`)
+                              )
+                            }
+                          >
+                            <Component className="size-4 text-muted-foreground" />
+                            <div className="flex flex-col">
+                              <span>{c.name}</span>
+                              <span className="text-xs text-muted-foreground line-clamp-1">
+                                {c.description}
+                              </span>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )
+                  })}
+                </CommandList>
+              </Command>
+            </div>
+          </>,
+          document.body,
+        )}
     </>
   )
 }
