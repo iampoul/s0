@@ -19,36 +19,44 @@ export function SearchCommand() {
   const router = useRouter()
   const pathname = usePathname()
   const [open, setOpen] = React.useState(false)
+  const [search, setSearch] = React.useState("")
   const panelRef = React.useRef<HTMLDivElement>(null)
   const inputRef = React.useRef<HTMLInputElement>(null)
+
+  // Close and navigate in one action
+  const select = React.useCallback(
+    (href: string) => {
+      setOpen(false)
+      setSearch("")
+      if (href !== pathname) {
+        router.push(href)
+      }
+    },
+    [pathname, router],
+  )
 
   // Close on route change
   React.useEffect(() => {
     setOpen(false)
+    setSearch("")
   }, [pathname])
 
-  // ⌘K toggle + Escape to close
+  // ⌘K toggle + Escape
   React.useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        if (
-          (e.target instanceof HTMLElement && e.target.isContentEditable) ||
-          e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement ||
-          e.target instanceof HTMLSelectElement
-        ) {
-          return
-        }
         e.preventDefault()
         setOpen((prev) => !prev)
+        if (!open) setSearch("")
       }
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && open) {
         setOpen(false)
+        setSearch("")
       }
     }
     document.addEventListener("keydown", onKeyDown)
     return () => document.removeEventListener("keydown", onKeyDown)
-  }, [])
+  }, [open])
 
   // Click outside to close
   React.useEffect(() => {
@@ -56,6 +64,7 @@ export function SearchCommand() {
     function onPointerDown(e: PointerEvent) {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setOpen(false)
+        setSearch("")
       }
     }
     document.addEventListener("pointerdown", onPointerDown)
@@ -69,18 +78,10 @@ export function SearchCommand() {
     }
   }, [open])
 
-  const runCommand = React.useCallback(
-    (command: () => unknown) => {
-      setOpen(false)
-      command()
-    },
-    [],
-  )
-
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => { setSearch(""); setOpen(true) }}
         className="hidden md:inline-flex items-center gap-2 h-8 w-56 border border-border rounded-sm px-3 text-sm text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors duration-200"
       >
         <Search size={14} className="shrink-0" />
@@ -91,7 +92,7 @@ export function SearchCommand() {
       </button>
 
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => { setSearch(""); setOpen(true) }}
         className="md:hidden w-8 h-8 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors duration-200"
         aria-label="Search"
       >
@@ -113,6 +114,8 @@ export function SearchCommand() {
                 <CommandInput
                   ref={inputRef}
                   placeholder="Search components, docs..."
+                  value={search}
+                  onValueChange={setSearch}
                 />
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
@@ -122,9 +125,7 @@ export function SearchCommand() {
                       <CommandItem
                         key={item.href}
                         value={item.title}
-                        onSelect={() =>
-                          runCommand(() => router.push(item.href))
-                        }
+                        onSelect={() => select(item.href)}
                       >
                         <BookOpen className="size-4 text-muted-foreground" />
                         <span>{item.title}</span>
@@ -137,18 +138,14 @@ export function SearchCommand() {
                   <CommandGroup heading="Pages">
                     <CommandItem
                       value="Themes"
-                      onSelect={() =>
-                        runCommand(() => router.push("/themes"))
-                      }
+                      onSelect={() => select("/themes")}
                     >
                       <Palette className="size-4 text-muted-foreground" />
                       <span>Themes</span>
                     </CommandItem>
                     <CommandItem
                       value="Changelog"
-                      onSelect={() =>
-                        runCommand(() => router.push("/changelog"))
-                      }
+                      onSelect={() => select("/changelog")}
                     >
                       <FileText className="size-4 text-muted-foreground" />
                       <span>Changelog</span>
@@ -169,9 +166,7 @@ export function SearchCommand() {
                             key={c.slug}
                             value={`${c.name} ${c.description}`}
                             onSelect={() =>
-                              runCommand(() =>
-                                router.push(`/docs/components/${c.slug}`)
-                              )
+                              select(`/docs/components/${c.slug}`)
                             }
                           >
                             <Component className="size-4 text-muted-foreground" />
