@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.1](https://github.com/iampoul/s0/compare/v0.8.0...v0.8.1) (2026-04-08)
+
+
+### Bug Fixes
+
+* clear search and close cmd+K dialog on navigation ([#25](https://github.com/iampoul/s0/issues/25)) ([06ccf3d](https://github.com/iampoul/s0/commit/06ccf3da7ae45c4774caa8f1f9c4b7bd0388f503))
+* clear search and close cmd+K dialog on navigation ([#27](https://github.com/iampoul/s0/issues/27)) ([d982c0c](https://github.com/iampoul/s0/commit/d982c0cf5ebb36619bab2ba183394246f4732027))
+* cmd+K dialog stays open after navigation, filter internal changelog entries ([#28](https://github.com/iampoul/s0/issues/28)) ([df40989](https://github.com/iampoul/s0/commit/df409893a9e51977aa4c6bd97cf6f9ab1199f4a3))
+* replace Radix Dialog with portal for cmd+K menu ([#31](https://github.com/iampoul/s0/issues/31)) ([144abad](https://github.com/iampoul/s0/commit/144abad44f2888579ebf5824abfb3576b9baa83d))
+* rewrite cmd+K search to use Dialog+Command composition ([#29](https://github.com/iampoul/s0/issues/29)) ([8ae37d0](https://github.com/iampoul/s0/commit/8ae37d079eddfa277473d059dd45045707185c30))
+* rewrite cmd+K search to use Dialog+Command composition ([#30](https://github.com/iampoul/s0/issues/30)) ([fca4492](https://github.com/iampoul/s0/commit/fca449274f820512ca7352e34e16b64df4d08be2))
+* separate close and navigate into different render cycles ([#32](https://github.com/iampoul/s0/issues/32)) ([fa6dd24](https://github.com/iampoul/s0/commit/fa6dd24f29c90b8f6236ba555ba34b454e322f30))
+
 ## [0.8.0](https://github.com/iampoul/s0/compare/v0.7.0...v0.8.0) (2026-03-27)
 
 
